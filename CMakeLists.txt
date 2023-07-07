@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.20)
 
 project(coconut)
 
@@ -10,13 +10,11 @@ set(CMAKE_CXX_COMPILER g++)
 find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
 
+add_compile_definitions(LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1)
+
 link_libraries(
-    clangAST
-    clangBasic
-    clangFrontend
-    clangLex
-    clangTooling
-    clangToolingCore
+    clang-cpp
+    LLVM
 )
 
 set(SOURCES
