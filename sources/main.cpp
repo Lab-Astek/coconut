@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2023
+** coconut
+** File description:
+** main
+*/
+
 // Declares clang::SyntaxOnlyAction.
 #include "clang/Frontend/FrontendActions.h"
 #include "clang/Tooling/CommonOptionsParser.h"
@@ -10,7 +17,7 @@ using namespace llvm;
 
 // Apply a custom category to all command-line options so that they are the
 // only ones displayed.
-static llvm::cl::OptionCategory MyToolCategory("my-tool options");
+static llvm::cl::OptionCategory coconutCategory("Coconut Options");
 
 // CommonOptionsParser declares HelpMessage with a description of the common
 // command-line options related to the compilation database and input files.
@@ -18,18 +25,18 @@ static llvm::cl::OptionCategory MyToolCategory("my-tool options");
 static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
 
 // A help message for this specific tool can be added afterwards.
-static cl::extrahelp MoreHelp("\nMore help text...\n");
+static cl::extrahelp MoreHelp("\nChecks Epitech coding style\n");
 
-int main(int argc, const char **argv) {
-  //auto ExpectedParser = CommonOptionsParser::create(argc, argv, MyToolCategory);
-  //if (!ExpectedParser) {
-    //// Fail gracefully for unsupported options.
-    //llvm::errs() << ExpectedParser.takeError();
-    //return 1;
-  //}
-  //CommonOptionsParser& OptionsParser = ExpectedParser.get();
-  //ClangTool Tool(OptionsParser.getCompilations(),
-                 //OptionsParser.getSourcePathList());
-  //return Tool.run(newFrontendActionFactory<clang::SyntaxOnlyAction>().get());
+int main(int argc, char const *argv[])
+{
+    auto optionsParser = CommonOptionsParser::create(
+        argc, argv, coconutCategory);
+    if (!optionsParser) {
+        // Fail gracefully for unsupported options.
+        llvm::errs() << optionsParser.takeError();
+        return 1;
+    }
+    ClangTool tool(optionsParser->getCompilations(),
+                   optionsParser->getSourcePathList());
+    return tool.run(newFrontendActionFactory<clang::SyntaxOnlyAction>().get());
 }
-
