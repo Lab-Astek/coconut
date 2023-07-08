@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.20)
+
+project(coconut)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_CXX_COMPILER g++)
+
+find_package(LLVM REQUIRED CONFIG)
+find_package(Clang REQUIRED CONFIG)
+
+add_compile_definitions(LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1)
+
+link_libraries(
+    clang-cpp
+    LLVM
+)
+
+set(SOURCES
+    sources/main.cpp
+)
+
+add_compile_options(-Wall -Wextra)
+
+add_executable(coconut ${SOURCES})
