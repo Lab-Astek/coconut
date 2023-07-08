@@ -19,6 +19,7 @@ link_libraries(
 
 set(SOURCES
     sources/main.cpp
+    sources/ReportHandler.cpp
 )
 
 add_compile_options(-Wall -Wextra)

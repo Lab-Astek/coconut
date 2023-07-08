@@ -32,4 +32,4 @@ popd >/dev/null
 
 SOURCES=$(find "$DELIVERY_DIR" -path "$DELIVERY_DIR"/bonus -o -path "$DELIVERY_DIR"/tests -prune -o -name "*.c")
 
-./build/coconut -p "$DELIVERY_DIR" $SOURCES > "$REPORTS_DIR"/coding-style-reports.log
+./build/coconut -p "$DELIVERY_DIR" -o "$REPORTS_DIR"/coding-style-reports.log $SOURCES
