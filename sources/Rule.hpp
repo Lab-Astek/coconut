@@ -12,18 +12,26 @@
 
 class Rule
 {
+
 public:
     Rule(std::string identifier, std::string errorDescription);
     virtual ~Rule() = default;
 
-    const std::string &getIdentifier() const;
-    const std::string &getErrorDescription() const;
+    std::string const &getIdentifier() const
+    {
+        return _identifier;
+    }
+    std::string const &getErrorDescription() const
+    {
+        return _errorDescription;
+    }
 
     // virtual void runCheck();
 
 protected:
     std::string _identifier;
     std::string _errorDescription;
+
 };
 
 #endif /* RULE_HPP */

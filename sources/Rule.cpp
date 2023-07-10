@@ -12,13 +12,3 @@ Rule::Rule(std::string identifier, std::string errorDescription)
 {
 
 }
-
-const std::string &Rule::getIdentifier() const
-{
-    return _identifier;
-}
-
-const std::string &Rule::getErrorDescription() const
-{
-    return _errorDescription;
-}
