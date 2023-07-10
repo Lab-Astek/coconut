@@ -20,6 +20,12 @@ link_libraries(
 set(SOURCES
     sources/main.cpp
     sources/ReportHandler.cpp
+    sources/Rule.cpp
+)
+
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/sources
 )
 
 add_compile_options(-Wall -Wextra)
