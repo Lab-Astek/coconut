@@ -16,8 +16,8 @@ public:
     Rule(std::string identifier, std::string errorDescription);
     virtual ~Rule() = default;
 
-    std::string getIdentifier() const;
-    std::string getErrorDescription() const;
+    const std::string &getIdentifier() const;
+    const std::string &getErrorDescription() const;
 
     // virtual void runCheck();
 
