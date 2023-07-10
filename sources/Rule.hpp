@@ -28,7 +28,7 @@ public:
 
     // virtual void runCheck();
 
-protected:
+private:
     std::string _identifier;
     std::string _errorDescription;
 

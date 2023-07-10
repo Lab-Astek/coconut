@@ -8,7 +8,8 @@
 #include "Rule.hpp"
 
 Rule::Rule(std::string identifier, std::string errorDescription)
-: _identifier(identifier), _errorDescription(errorDescription)
+    : _identifier(identifier)
+    , _errorDescription(errorDescription)
 {
 
 }
