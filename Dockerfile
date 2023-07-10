@@ -9,4 +9,7 @@ COPY sources /app/sources
 RUN cmake -B build
 RUN cmake --build build
 
-COPY coding-style.sh /app
+RUN install ./build/coconut /usr/bin
+
+COPY check.sh /app
+ENTRYPOINT ["/app/check.sh"]
