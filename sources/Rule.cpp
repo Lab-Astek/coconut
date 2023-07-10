@@ -7,12 +7,8 @@
 
 #include "Rule.hpp"
 
-Rule::Rule()
-{
-
-}
-
-Rule::~Rule()
+Rule::Rule(std::string identifier, std::string errorDescription)
+: _identifier(identifier), _errorDescription(errorDescription)
 {
 
 }

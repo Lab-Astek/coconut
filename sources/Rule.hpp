@@ -6,15 +6,15 @@
 */
 
 #ifndef RULE_HPP
-    #define RULE_HPP
+#define RULE_HPP
 
-    #include <string>
+#include <string>
 
 class Rule
 {
 public:
-    Rule();
-    ~Rule();
+    Rule(std::string identifier, std::string errorDescription);
+    virtual ~Rule() = default;
 
     std::string getIdentifier() const;
     std::string getErrorDescription() const;
