@@ -19,6 +19,7 @@ link_libraries(
 
 set(SOURCES
     sources/main.cpp
+    sources/ReportHandler.cpp
     sources/Rule.cpp
 )
 
