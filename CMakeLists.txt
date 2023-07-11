@@ -21,6 +21,7 @@ set(SOURCES
     sources/main.cpp
     sources/ReportHandler.cpp
     sources/Rule.cpp
+    sources/CoconutStyleAction.cpp
 )
 
 include_directories(

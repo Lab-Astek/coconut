@@ -10,10 +10,22 @@
 
 #include <fstream>
 
+namespace coconut {
+class Rule;
+}
+
+namespace clang {
+class CompilerInstance;
+class SourceLocation;
+}
+
 class ReportHandler {
 public:
     explicit ReportHandler(std::string const &path);
 
+    void reportViolation(coconut::Rule const &rule,
+        clang::CompilerInstance &compiler,
+        clang::SourceLocation const &location);
     void report(std::string const &message);
 
 private:
