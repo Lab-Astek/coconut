@@ -16,7 +16,6 @@
 #include <llvm/ADT/StringRef.h>
 
 using namespace clang::ast_matchers;
-using clang::CompilerInstance;
 
 coconut::RuleC3::RuleC3()
     : Rule("MAJOR:C-C3", "goto statement is forbidden")
@@ -24,7 +23,7 @@ coconut::RuleC3::RuleC3()
 }
 
 void coconut::RuleC3::runCheck(ReportHandler &report,
-    CompilerInstance &compiler, clang::ASTContext &context) const
+    clang::CompilerInstance &compiler, clang::ASTContext &context) const
 {
     MatchFinder finder;
     LambdaCallback handler([&] (MatchFinder::MatchResult const &result) {
