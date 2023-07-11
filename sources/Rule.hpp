@@ -8,6 +8,8 @@
 #ifndef RULE_HPP
 #define RULE_HPP
 
+#include "ReportHandler.hpp"
+
 #include <string>
 
 namespace clang {
@@ -32,7 +34,8 @@ public:
         return _errorDescription;
     }
 
-    virtual void runCheck(clang::CompilerInstance &compiler,
+    virtual void runCheck(ReportHandler &report,
+        clang::CompilerInstance &compiler,
         clang::ASTContext &context) const = 0;
 
 private:

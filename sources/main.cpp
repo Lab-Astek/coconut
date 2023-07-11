@@ -52,6 +52,7 @@ int main(int argc, char const *argv[])
         ReportHandler report(reportFile);
         ClangTool tool(optionsParser->getCompilations(),
                        optionsParser->getSourcePathList());
+        coconut::StyleAction::_reportHandler = &report;
         return tool.run(
             newFrontendActionFactory<coconut::StyleAction>().get());
     } catch (std::runtime_error &e) {

@@ -11,22 +11,31 @@
 #include "Rule.hpp"
 
 #include <clang/Frontend/FrontendAction.h>
+#include <memory>
 
 namespace coconut {
 
 class StyleAction : public clang::ASTFrontendAction {
 public:
     StyleAction();
+
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
         clang::CompilerInstance &compiler, llvm::StringRef inFile) override;
 
-    std::vector<Rule> const &getRules() const
+    std::vector<std::unique_ptr<Rule>> const &getRules() const
     {
         return _rules;
     }
 
+    ReportHandler &getReportHandler() const
+    {
+        return *_reportHandler;
+    }
+
+    inline static ReportHandler *_reportHandler;
+
 private:
-    std::vector<Rule> _rules;
+    std::vector<std::unique_ptr<Rule>> _rules;
 };
 
 class StyleConsumer : public clang::ASTConsumer {

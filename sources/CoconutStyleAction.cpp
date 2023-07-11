@@ -6,7 +6,7 @@
 */
 
 #include "CoconutStyleAction.hpp"
-#include "Rule.hpp"
+#include "rules/Rules.hpp"
 
 #include <clang/Frontend/CompilerInstance.h>
 
@@ -14,6 +14,7 @@ using namespace coconut;
 
 StyleAction::StyleAction()
 {
+    _rules.emplace_back(std::make_unique<coconut::RuleC3>());
 }
 
 std::unique_ptr<clang::ASTConsumer> StyleAction::CreateASTConsumer(
@@ -32,7 +33,7 @@ StyleConsumer::StyleConsumer(
 
 void StyleConsumer::HandleTranslationUnit(clang::ASTContext &context)
 {
-    for (Rule const &rule : _action.getRules()) {
-        rule.runCheck(_compiler, context);
+    for (auto const &rule : _action.getRules()) {
+        rule->runCheck(_action.getReportHandler(), _compiler, context);
     }
 }
