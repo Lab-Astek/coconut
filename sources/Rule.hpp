@@ -10,9 +10,14 @@
 
 #include <string>
 
-class Rule
-{
+namespace clang {
+class CompilerInstance;
+class ASTContext;
+}
 
+namespace coconut {
+
+class Rule {
 public:
     Rule(std::string identifier, std::string errorDescription);
     virtual ~Rule() = default;
@@ -21,17 +26,20 @@ public:
     {
         return _identifier;
     }
+
     std::string const &getErrorDescription() const
     {
         return _errorDescription;
     }
 
-    // virtual void runCheck();
+    virtual void runCheck(clang::CompilerInstance &compiler,
+        clang::ASTContext &context) const = 0;
 
 private:
     std::string _identifier;
     std::string _errorDescription;
-
 };
+
+}
 
 #endif /* RULE_HPP */

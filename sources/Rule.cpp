@@ -7,6 +7,8 @@
 
 #include "Rule.hpp"
 
+using namespace coconut;
+
 Rule::Rule(std::string identifier, std::string errorDescription)
     : _identifier(identifier)
     , _errorDescription(errorDescription)
