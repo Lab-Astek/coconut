@@ -6,6 +6,7 @@
 */
 
 #include "ReportHandler.hpp"
+#include "CoconutStyleAction.hpp"
 
 // Declares clang::SyntaxOnlyAction.
 #include "clang/Frontend/FrontendActions.h"
@@ -52,7 +53,7 @@ int main(int argc, char const *argv[])
         ClangTool tool(optionsParser->getCompilations(),
                        optionsParser->getSourcePathList());
         return tool.run(
-            newFrontendActionFactory<clang::SyntaxOnlyAction>().get());
+            newFrontendActionFactory<coconut::StyleAction>().get());
     } catch (std::runtime_error &e) {
         llvm::errs() << e.what() << "\n";
         return 1;

@@ -8,11 +8,11 @@
 #ifndef COCONUT_STYLE_ACTION_HPP
 #define COCONUT_STYLE_ACTION_HPP
 
+#include "Rule.hpp"
+
 #include <clang/Frontend/FrontendAction.h>
 
 namespace coconut {
-
-class Rule;
 
 class StyleAction : public clang::ASTFrontendAction {
 public:
