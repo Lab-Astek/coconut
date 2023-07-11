@@ -31,12 +31,13 @@ private:
 
 class StyleConsumer : public clang::ASTConsumer {
 public:
-    StyleConsumer(clang::CompilerInstance &compiler, llvm::StringRef inFile);
+    StyleConsumer(StyleAction &action, clang::CompilerInstance &compiler,
+        llvm::StringRef inFile);
 
     void HandleTranslationUnit(clang::ASTContext &context) override;
 
 private:
-    StyleAction _action;
+    StyleAction &_action;
     clang::CompilerInstance &_compiler;
     llvm::StringRef _inFile;
 };

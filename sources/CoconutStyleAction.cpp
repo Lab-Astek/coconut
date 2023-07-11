@@ -19,12 +19,13 @@ StyleAction::StyleAction()
 std::unique_ptr<clang::ASTConsumer> StyleAction::CreateASTConsumer(
     clang::CompilerInstance &ci, llvm::StringRef inFile)
 {
-    return std::make_unique<StyleConsumer>(ci, inFile);
+    return std::make_unique<StyleConsumer>(*this, ci, inFile);
 }
 
 StyleConsumer::StyleConsumer(
-    clang::CompilerInstance &ci, llvm::StringRef inFile)
-    : _compiler(ci)
+    StyleAction &action, clang::CompilerInstance &ci, llvm::StringRef inFile)
+    : _action(action)
+    , _compiler(ci)
     , _inFile(inFile)
 {
 }
