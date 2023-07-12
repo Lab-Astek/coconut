@@ -23,8 +23,9 @@ set(SOURCES
     sources/Rule.cpp
     sources/CoconutStyleAction.cpp
     sources/rules/RuleF7.cpp
-    sources/rules/RuleC3.cpp
     sources/rules/RuleF4.cpp
+    sources/rules/RulesF5.cpp
+    sources/rules/RuleC3.cpp
     sources/rules/RuleO3.cpp
 )
 
