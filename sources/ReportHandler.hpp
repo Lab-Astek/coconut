@@ -8,8 +8,8 @@
 #ifndef COCONUT_REPORTHANDLER_HPP
 #define COCONUT_REPORTHANDLER_HPP
 
-#include <fstream>
 #include <optional>
+#include <memory>
 
 namespace coconut {
 class Rule;
@@ -18,6 +18,10 @@ class Rule;
 namespace clang {
 class CompilerInstance;
 class SourceLocation;
+}
+
+namespace llvm {
+class raw_fd_ostream;
 }
 
 class ReportHandler {
@@ -34,7 +38,7 @@ public:
         clang::SourceLocation const &location);
 
 private:
-    std::ofstream _file;
+    std::unique_ptr<llvm::raw_fd_ostream> _file;
 };
 
 #endif /* !COCONUT_REPORTHANDLER_HPP */
