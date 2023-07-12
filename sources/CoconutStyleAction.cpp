@@ -14,6 +14,7 @@ using namespace coconut;
 
 StyleAction::StyleAction()
 {
+    _rules.emplace_back(std::make_unique<coconut::RuleF7>());
     _rules.emplace_back(std::make_unique<coconut::RuleC3>());
 }
 
