@@ -28,9 +28,6 @@ void coconut::RuleG4::runCheck(ReportHandler &report,
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
         if (auto stmt = result.Nodes.getNodeAs<clang::VarDecl>("var")) {
-            if (stmt->getType().isConstant(compiler.getASTContext())) {
-                return;
-            }
             if (auto loc = ReportHandler::getExpansionLoc(
                     compiler, stmt->getLocation())) {
                 report.reportViolation(*this, compiler, *loc);
@@ -39,6 +36,7 @@ void coconut::RuleG4::runCheck(ReportHandler &report,
     });
 
     auto globalVar = varDecl(isDefinition(), hasStaticStorageDuration(),
+        isExpansionInMainFile(), unless(hasType(isConstQualified())),
         hasParent(translationUnitDecl()));
     finder.addMatcher(globalVar.bind("var"), &handler);
     finder.matchAST(context);
