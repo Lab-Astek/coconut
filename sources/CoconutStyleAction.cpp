@@ -6,7 +6,7 @@
 */
 
 #include "CoconutStyleAction.hpp"
-#include "rules/Rules.hpp"
+#include "Rules/Rules.hpp"
 
 #include <clang/Frontend/CompilerInstance.h>
 
@@ -16,6 +16,7 @@ StyleAction::StyleAction()
 {
     _rules.emplace_back(std::make_unique<coconut::RuleF7>());
     _rules.emplace_back(std::make_unique<coconut::RuleC3>());
+    _rules.emplace_back(std::make_unique<coconut::RuleF4>());
 }
 
 std::unique_ptr<clang::ASTConsumer> StyleAction::CreateASTConsumer(

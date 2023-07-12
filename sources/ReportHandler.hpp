@@ -31,6 +31,10 @@ public:
     void reportViolation(coconut::Rule const &rule,
         clang::CompilerInstance &compiler,
         clang::SourceLocation const &location);
+    void reportViolation(coconut::Rule const &rule,
+        clang::CompilerInstance &compiler,
+        clang::SourceLocation const &location, int line);
+
     void report(std::string const &message);
 
     static std::optional<clang::SourceLocation> getExpansionLoc(

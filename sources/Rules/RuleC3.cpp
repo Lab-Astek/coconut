@@ -12,7 +12,6 @@
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Frontend/CompilerInstance.h>
-#include <iostream>
 #include <llvm/ADT/StringRef.h>
 
 using namespace clang::ast_matchers;

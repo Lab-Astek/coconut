@@ -23,6 +23,7 @@ namespace coconut {
 
 DECLARE_RULE(F7)
 DECLARE_RULE(C3)
+DECLARE_RULE(F4)
 
 }
 
