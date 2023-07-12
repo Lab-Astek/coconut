@@ -22,9 +22,11 @@ namespace coconut {
     };
 
 DECLARE_RULE(F7)
-DECLARE_RULE(C3)
 DECLARE_RULE(F4)
 
+DECLARE_RULE(C3)
+
+DECLARE_RULE(O3)
 }
 
 #endif /* !COCONUT_RULES_HPP */
