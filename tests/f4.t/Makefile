@@ -5,14 +5,14 @@
 ## f4
 ##
 
-all: f4.out
-f4.out: f4.o
-	gcc -o f4.out f4.o
+NAME	= f4
+
+all: $(NAME)
 
 clean:
-	rm -f *.o
+	$(RM) *.o
 
 fclean: clean
-	rm -f *.out
+	$(RM) $(NAME)
 
 re: fclean all

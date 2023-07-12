@@ -5,14 +5,14 @@
 ## f4
 ##
 
-all: f4_equal_limit.out
-f4_equal_limit.out: f4_equal_limit.o
-	gcc -o f4_equal_limit.out f4_equal_limit.o
+NAME	= f4_equal_limit
+
+all: $(NAME)
 
 clean:
-	rm -f *.o
+	$(RM) *.o
 
 fclean: clean
-	rm -f *.out
+	$(RM) $(NAME)
 
 re: fclean all
