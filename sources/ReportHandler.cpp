@@ -11,17 +11,19 @@
 #include <clang/Basic/SourceManager.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <llvm/ADT/StringRef.h>
+#include <system_error>
 
 ReportHandler::ReportHandler(std::string const &path)
-    : _file(path)
 {
-    if (!_file.is_open())
-        throw std::runtime_error("Can't open file");
+    std::error_code _ec;
+    _file = std::make_unique<llvm::raw_fd_ostream>(path, _ec);
+    if (_ec)
+        throw std::system_error(_ec);
 }
 
 void ReportHandler::report(std::string const &str)
 {
-    _file << str << std::endl;
+    *_file << str << '\n';
 }
 
 void ReportHandler::reportViolation(coconut::Rule const &rule,
@@ -31,8 +33,8 @@ void ReportHandler::reportViolation(coconut::Rule const &rule,
     llvm::StringRef filename = sm.getFilename(location);
     unsigned int number = sm.getSpellingLineNumber(location);
 
-    _file << std::string(filename) << ":" << number << ": " << rule.getIdentifier()
-          << std::endl;
+    *_file << filename << ":" << number << ": " << rule.getIdentifier()
+          << '\n';
 }
 
 std::optional<clang::SourceLocation> ReportHandler::getExpansionLoc(
