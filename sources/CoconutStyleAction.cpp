@@ -6,7 +6,7 @@
 */
 
 #include "CoconutStyleAction.hpp"
-#include "Rules/Rules.hpp"
+#include "rules/Rules.hpp"
 
 #include <clang/Frontend/CompilerInstance.h>
 

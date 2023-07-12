@@ -24,7 +24,7 @@ set(SOURCES
     sources/CoconutStyleAction.cpp
     sources/rules/RuleF7.cpp
     sources/rules/RuleC3.cpp
-    sources/Rules/RuleF4.cpp
+    sources/rules/RuleF4.cpp
 )
 
 include_directories(

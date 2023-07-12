@@ -6,7 +6,7 @@
 */
 
 #include "LambdaCallback.hpp"
-#include "Rules.hpp"
+#include "rules/Rules.hpp"
 
 #include <clang/AST/ASTContext.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
