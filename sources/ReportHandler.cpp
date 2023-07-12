@@ -36,6 +36,7 @@ void ReportHandler::reportViolation(coconut::Rule const &rule,
     *_file << filename << ":" << number << ": " << rule.getIdentifier()
           << '\n';
 }
+
 void ReportHandler::reportViolation(coconut::Rule const &rule, clang::CompilerInstance &compiler,
     clang::SourceLocation const &location, int line)
 {
@@ -44,7 +45,6 @@ void ReportHandler::reportViolation(coconut::Rule const &rule, clang::CompilerIn
 
     *_file << filename << ":" << line << ": " << rule.getIdentifier()
           << '\n';
-
 }
 
 std::optional<clang::SourceLocation> ReportHandler::getExpansionLoc(
