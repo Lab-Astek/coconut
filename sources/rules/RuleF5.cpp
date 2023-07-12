@@ -12,8 +12,6 @@
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/Frontend/CompilerInstance.h>
 
-#include <iostream>
-
 using namespace clang::ast_matchers;
 
 static constexpr std::size_t params_limit = 4;
