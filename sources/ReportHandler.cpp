@@ -15,10 +15,10 @@
 
 ReportHandler::ReportHandler(std::string const &path)
 {
-    std::error_code _ec;
-    _file = std::make_unique<llvm::raw_fd_ostream>(path, _ec);
-    if (_ec)
-        throw std::system_error(_ec);
+    std::error_code ec;
+    _file = std::make_unique<llvm::raw_fd_ostream>(path, ec);
+    if (ec)
+        throw std::system_error(ec);
 }
 
 void ReportHandler::report(std::string const &str)
