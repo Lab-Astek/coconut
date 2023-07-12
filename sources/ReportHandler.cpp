@@ -37,6 +37,16 @@ void ReportHandler::reportViolation(coconut::Rule const &rule,
           << '\n';
 }
 
+void ReportHandler::reportViolation(coconut::Rule const &rule, clang::CompilerInstance &compiler,
+    clang::SourceLocation const &location, int line)
+{
+    clang::SourceManager &sm = compiler.getSourceManager();
+    llvm::StringRef filename = sm.getFilename(location);
+
+    *_file << filename << ":" << line << ": " << rule.getIdentifier()
+          << '\n';
+}
+
 std::optional<clang::SourceLocation> ReportHandler::getExpansionLoc(
     clang::CompilerInstance &compiler,
     clang::SourceLocation const &location)
