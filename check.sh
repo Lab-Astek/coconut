@@ -30,6 +30,12 @@ bear -- make re >/dev/null 2>&1
 
 popd >/dev/null
 
-SOURCES=$(find "$DELIVERY_DIR" -path "$DELIVERY_DIR"/bonus -o -path "$DELIVERY_DIR"/tests -prune -o -name "*.c")
+REPORT="$REPORTS_DIR"/coding-style-reports.log
 
-coconut -p "$DELIVERY_DIR" -o "$REPORTS_DIR"/coding-style-reports.log $SOURCES
+rm -f "$REPORT"
+
+find "$DELIVERY_DIR" \
+     -path "$DELIVERY_DIR"/bonus \
+     -o -path "$DELIVERY_DIR"/tests -prune \
+     -o \( -name '*.c' -o -name '*.h' \) -print0 \
+    | xargs -0 coconut -p "$DELIVERY_DIR" -o "$REPORT"
