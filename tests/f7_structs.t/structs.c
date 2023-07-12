@@ -5,12 +5,7 @@
 ** test rule F7 - structs passed by value
 */
 
-struct position {
-    int x;
-    int y;
-};
-
-typedef struct position pos_t;
+#include "structs.h"
 
 void move_val(pos_t pos)
 {

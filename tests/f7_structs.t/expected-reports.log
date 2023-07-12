@@ -1,2 +1,4 @@
-structs.c:15: MAJOR:C-F7
-structs.c:27: MAJOR:C-F7
+structs.c:10: MAJOR:C-F7
+structs.c:22: MAJOR:C-F7
+structs.h:22: MAJOR:C-F7
+structs.h:27: MAJOR:C-F7

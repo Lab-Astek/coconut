@@ -33,6 +33,7 @@ void ReportHandler::reportViolation(coconut::Rule const &rule,
     llvm::StringRef filename = sm.getFilename(location);
     unsigned int number = sm.getSpellingLineNumber(location);
 
+    filename.consume_front("/mnt/build/");
     *_file << filename << ":" << number << ": " << rule.getIdentifier()
           << '\n';
 }
