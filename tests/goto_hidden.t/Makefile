@@ -5,11 +5,14 @@
 ## goto
 ##
 
-all: goto.out
-goto: goto.o
-	gcc -o goto.out goto.o
+NAME	= goto
+
+all: $(NAME)
+
 clean:
-	rm -f *.o
+	$(RM) *.o
+
 fclean: clean
-	rm -f *.out
+	$(RM) $(NAME)
+
 re: fclean all

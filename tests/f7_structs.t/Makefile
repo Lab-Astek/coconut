@@ -2,10 +2,10 @@
 ## EPITECH PROJECT, 2023
 ## test
 ## File description:
-## goto
+## test
 ##
 
-NAME	= goto
+NAME	= structs
 
 all: $(NAME)
 
