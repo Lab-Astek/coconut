@@ -5,8 +5,8 @@
 ** C3
 */
 
-#include "Rules.hpp"
 #include "LambdaCallback.hpp"
+#include "Rules.hpp"
 
 #include <clang/AST/ASTContext.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
@@ -26,9 +26,12 @@ void coconut::RuleC3::runCheck(ReportHandler &report,
     clang::CompilerInstance &compiler, clang::ASTContext &context) const
 {
     MatchFinder finder;
-    LambdaCallback handler([&] (MatchFinder::MatchResult const &result) {
+    LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
         if (auto stmt = result.Nodes.getNodeAs<clang::GotoStmt>("goto")) {
-            report.reportViolation(*this, compiler, stmt->getGotoLoc());
+            if (auto loc = ReportHandler::getExpansionLoc(
+                    compiler, stmt->getGotoLoc())) {
+                report.reportViolation(*this, compiler, *loc);
+            }
         }
     });
 

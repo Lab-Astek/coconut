@@ -9,6 +9,7 @@
 #define COCONUT_REPORTHANDLER_HPP
 
 #include <fstream>
+#include <optional>
 
 namespace coconut {
 class Rule;
@@ -27,6 +28,10 @@ public:
         clang::CompilerInstance &compiler,
         clang::SourceLocation const &location);
     void report(std::string const &message);
+
+    static std::optional<clang::SourceLocation> getExpansionLoc(
+        clang::CompilerInstance &compiler,
+        clang::SourceLocation const &location);
 
 private:
     std::ofstream _file;

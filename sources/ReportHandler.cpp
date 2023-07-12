@@ -28,10 +28,23 @@ void ReportHandler::reportViolation(coconut::Rule const &rule,
     clang::CompilerInstance &compiler, clang::SourceLocation const &location)
 {
     clang::SourceManager &sm = compiler.getSourceManager();
-    clang::SourceLocation expansion = sm.getExpansionLoc(location);
-    llvm::StringRef filename = sm.getFilename(expansion);
-    unsigned int number = sm.getSpellingLineNumber(expansion);
+    llvm::StringRef filename = sm.getFilename(location);
+    unsigned int number = sm.getSpellingLineNumber(location);
 
     _file << std::string(filename) << ":" << number << ": " << rule.getIdentifier()
           << std::endl;
+}
+
+std::optional<clang::SourceLocation> ReportHandler::getExpansionLoc(
+    clang::CompilerInstance &compiler,
+    clang::SourceLocation const &location)
+{
+    clang::SourceManager &sm = compiler.getSourceManager();
+    clang::SourceLocation expansion = sm.getExpansionLoc(location);
+    clang::FileID id = sm.getFileID(expansion);
+    clang::FileID file = sm.getMainFileID();
+
+    if (id != file)
+        return std::nullopt;
+    return expansion;
 }
