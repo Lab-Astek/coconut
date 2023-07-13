@@ -25,16 +25,27 @@ void coconut::RuleF6::runCheck(ReportHandler &report,
     clang::CompilerInstance &compiler, clang::ASTContext &context) const
 {
     MatchFinder finder;
+
+    // This matcher will find every function definition in a source file.
+    // It will report a violation if the function don't respect the ISO/ANSI C syntax
     LambdaCallback handler([&] (MatchFinder::MatchResult const &result) {
-        if (auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function")) {
-            if (not func->hasPrototype())
+        auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function");
+
+        if (not func)
+            return;
+
+        // If the function definition don't have any prototype, report a violation
+        if (not func->hasPrototype())
                 report.reportViolation(*this, compiler, func->getLocation());
-        }
     });
 
+    // Here, the rule F6 concern any function definition. It doesn't concern function
+    // declaration so we have to filter our research with some ASTMatchers.
     finder.addMatcher(
         functionDecl(
+            // we only want functions definitions
             isDefinition(),
+            // so, we don't want to match any function declared in headers
             isExpansionInMainFile()
         ).bind("function"),
         &handler
