@@ -22,6 +22,7 @@ set(SOURCES
     sources/ReportHandler.cpp
     sources/Rule.cpp
     sources/CoconutStyleAction.cpp
+    sources/rules/RuleG4.cpp
     sources/rules/RuleF7.cpp
     sources/rules/RuleF4.cpp
     sources/rules/RuleF5.cpp
