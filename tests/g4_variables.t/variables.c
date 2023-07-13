@@ -12,6 +12,7 @@ int my_extern_var = 3;
 int main(void)
 {
     static int static_var_ok = 0;
+
     my_global_var = -1;
     my_static_var = 3;
     my_tentative_var = 8;
