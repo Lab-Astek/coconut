@@ -5,7 +5,7 @@
 ** test L5
 */
 
-#include <stddef.h>
+#include <sys/select.h>
 #include <unistd.h>
 #include <stdio.h>
 
@@ -40,4 +40,10 @@ int main(void)
 
     g = 1.0;
     return d + g + h + b + c + e + f;
+}
+
+void macros_which_expand_to_var_decl(fd_set *set)
+{
+    FD_ZERO(set);
+    FD_SET(STDIN_FILENO, set);
 }

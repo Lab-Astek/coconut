@@ -85,6 +85,11 @@ void coconut::RuleL5::runCheck(
         auto loc = stmt->getLocation();
         auto line = compiler.getSourceManager().getExpansionLineNumber(loc);
 
+        if (loc.isMacroID()) {
+            // If the variable declaration is in a (system header) macro
+            // expansion, it's probably a false positive (ex: FD_ZERO)
+            return;
+        }
         if (lines_used.find(line) == lines_used.end()) {
             lines_used.insert(line);
         } else {
@@ -112,7 +117,8 @@ void coconut::RuleL5::runCheck(
     // initialisatiion part of a for loop (can't be the condition, that's an
     // expr, and can't be the increment either, and can't be the body (you'd be
     // forced to put it in a compound statement))
-    // So we can just check if the parent of the variable declaration is a for loop
+    // So we can just check if the parent of the variable declaration is a for
+    // loop
     auto inFor = hasParent(declStmt(hasParent(forStmt())));
     finder.addMatcher(
         varDecl(
