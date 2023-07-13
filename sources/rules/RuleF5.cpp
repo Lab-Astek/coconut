@@ -10,6 +10,7 @@
 
 #include <clang/AST/ASTContext.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/Frontend/CompilerInstance.h>
 
 using namespace clang::ast_matchers;
@@ -26,19 +27,14 @@ void coconut::RuleF5::runCheck(ReportHandler &report,
 {
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
-        if (auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function")) {
-            auto loc = ReportHandler::getExpansionLoc(compiler, func->getLocation());
+        if (auto func
+            = result.Nodes.getNodeAs<clang::FunctionDecl>("function")) {
             unsigned int nbParams = func->getNumParams();
-
-            if (not loc)
-                return;
-
             if (nbParams > params_limit)
-                report.reportViolation(*this, compiler, *loc);
+                report.reportViolation(*this, compiler, func->getLocation());
         }
     });
 
-    finder.addMatcher(functionDecl(isDefinition()).bind("function"), &handler);
+    finder.addMatcher(functionDecl(isDefinition(), isExpansionInMainFile()).bind("function"), &handler);
     finder.matchAST(context);
-
 }

@@ -10,6 +10,7 @@
 
 #include <clang/AST/ASTContext.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <llvm/ADT/StringRef.h>
@@ -30,15 +31,15 @@ void coconut::RuleF7::runCheck(ReportHandler &report,
             for (unsigned int i = 0; i < stmt->getNumParams(); i++) {
                 auto param = stmt->getParamDecl(i);
                 if (param->getType()->isStructureOrClassType()) {
-                    if (auto loc = ReportHandler::getExpansionLoc(
-                            compiler, param->getLocation())) {
-                        report.reportViolation(*this, compiler, *loc);
-                    }
+                    report.reportViolation(
+                        *this, compiler, param->getLocation());
                 }
             }
         }
     });
 
-    finder.addMatcher(functionDecl(isDefinition()).bind("func"), &handler);
+    finder.addMatcher(
+        functionDecl(isDefinition(), isExpansionInMainFile()).bind("func"),
+        &handler);
     finder.matchAST(context);
 }

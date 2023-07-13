@@ -10,6 +10,7 @@
 
 #include <clang/AST/ASTContext.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <llvm/ADT/StringRef.h>
@@ -27,13 +28,10 @@ void coconut::RuleC3::runCheck(ReportHandler &report,
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
         if (auto stmt = result.Nodes.getNodeAs<clang::GotoStmt>("goto")) {
-            if (auto loc = ReportHandler::getExpansionLoc(
-                    compiler, stmt->getGotoLoc())) {
-                report.reportViolation(*this, compiler, *loc);
-            }
+            report.reportViolation(*this, compiler, stmt->getGotoLoc());
         }
     });
 
-    finder.addMatcher(gotoStmt().bind("goto"), &handler);
+    finder.addMatcher(gotoStmt(isExpansionInMainFile()).bind("goto"), &handler);
     finder.matchAST(context);
 }
