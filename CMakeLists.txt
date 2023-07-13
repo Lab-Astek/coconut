@@ -28,6 +28,7 @@ set(SOURCES
     sources/rules/RuleF5.cpp
     sources/rules/RuleC3.cpp
     sources/rules/RuleO3.cpp
+    sources/rules/RuleL5.cpp
 )
 
 include_directories(
