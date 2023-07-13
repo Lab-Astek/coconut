@@ -22,13 +22,19 @@ set(SOURCES
     sources/ReportHandler.cpp
     sources/Rule.cpp
     sources/CoconutStyleAction.cpp
+
+    sources/rules/RuleO3.cpp
+
     sources/rules/RuleG4.cpp
-    sources/rules/RuleF7.cpp
+
     sources/rules/RuleF4.cpp
     sources/rules/RuleF5.cpp
-    sources/rules/RuleC3.cpp
-    sources/rules/RuleO3.cpp
+    sources/rules/RuleF7.cpp
+
     sources/rules/RuleL5.cpp
+
+    sources/rules/RuleC2.cpp
+    sources/rules/RuleC3.cpp
 )
 
 include_directories(
