@@ -50,7 +50,7 @@ REPORT="$REPORTS_DIR"/coding-style-reports.log
 rm -f "$REPORT"
 
 find "$COPY_DEST" \
-     -path "$COPY_DEST"/bonus \
-     -o -path "$COPY_DEST"/tests -prune \
+     \( -path "$COPY_DEST"/bonus \
+     -o -path "$COPY_DEST"/tests \) -prune \
      -o \( -name '*.c' -o -name '*.h' \) -print0 \
     | xargs -0 coconut -p "$COPY_DEST" -o "$REPORT"
