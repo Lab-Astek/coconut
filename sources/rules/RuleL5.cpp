@@ -98,15 +98,32 @@ void coconut::RuleL5::runCheck(
     });
 
     finder.addMatcher(
-        functionDecl(isDefinition(), isExpansionInMainFile()).bind("function"),
+        functionDecl(
+            // we don't want to catch functions declared in headers
+            isExpansionInMainFile(),
+            // we don't care about function prototypes
+            isDefinition()
+        )
+            .bind("function"),
         &functions
     );
 
+    // Syntactically, a variable declaration can only be in the loop
+    // initialisatiion part of a for loop (can't be the condition, that's an
+    // expr, and can't be the increment either, and can't be the body (you'd be
+    // forced to put it in a compound statement))
+    // So we can just check if the parent of the variable declaration is a for loop
     auto inFor = hasParent(declStmt(hasParent(forStmt())));
     finder.addMatcher(
         varDecl(
-            isExpansionInMainFile(), hasAncestor(functionDecl()),
-            unless(parmVarDecl()), unless(inFor)
+            // as usual, we don't want to catch variables declared in headers
+            isExpansionInMainFile(),
+            // we don't care about global variables here
+            hasAncestor(functionDecl()),
+            // we ignore parameters
+            unless(parmVarDecl()),
+            // we ignore variables declared in for loops
+            unless(inFor)
         )
             .bind("variable"),
         &variables
