@@ -14,15 +14,10 @@ using namespace coconut;
 
 StyleAction::StyleAction()
 {
-    _rules.emplace_back(std::make_unique<coconut::RuleO3>());
-
-    _rules.emplace_back(std::make_unique<coconut::RuleG4>());
-
-    _rules.emplace_back(std::make_unique<coconut::RuleF4>());
-    _rules.emplace_back(std::make_unique<coconut::RuleF5>());
-    _rules.emplace_back(std::make_unique<coconut::RuleF7>());
-
-    _rules.emplace_back(std::make_unique<coconut::RuleC3>());
+#define DECLARE_RULE(name)                                                     \
+    _rules.emplace_back(std::make_unique<coconut::Rule##name>());
+#include "rules/Rules.inc"
+#undef DECLARE_RULE
 }
 
 std::unique_ptr<clang::ASTConsumer> StyleAction::CreateASTConsumer(

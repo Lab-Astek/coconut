@@ -21,15 +21,9 @@ namespace coconut {
             clang::ASTContext &context) const override;                        \
     };
 
-DECLARE_RULE(O3)
+#include "rules/Rules.inc"
 
-DECLARE_RULE(G4)
-
-DECLARE_RULE(F4)
-DECLARE_RULE(F5)
-DECLARE_RULE(F7)
-
-DECLARE_RULE(C3)
+#undef DECLARE_RULE
 
 }
 
