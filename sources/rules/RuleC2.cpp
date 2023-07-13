@@ -39,6 +39,15 @@ void coconut::RuleC2::runCheck(ReportHandler &report,
             return;
         report.reportViolation(*this, compiler, parent->getBeginLoc());
     });
+    LambdaCallback stmtHandler([&](MatchFinder::MatchResult const &result) {
+        auto ternary = result.Nodes
+            .getNodeAs<clang::ConditionalOperator>("ternary");
+        if (!ternary)
+            return;
+        if (ternary->getBeginLoc().isMacroID())
+            return;
+        report.reportViolation(*this, compiler, ternary->getBeginLoc());
+    });
 
     finder.addMatcher(
         conditionalOperator(
@@ -47,5 +56,19 @@ void coconut::RuleC2::runCheck(ReportHandler &report,
             )
         .bind("parent"),
         &handler);
+    finder.addMatcher(
+        conditionalOperator(
+            isExpansionInMainFile(),
+            anyOf(
+                hasParent(ifStmt(hasCondition(expr().bind("cond")))),
+                hasParent(forStmt(hasCondition(expr().bind("cond")))),
+                hasParent(whileStmt(hasCondition(expr().bind("cond")))),
+                hasParent(doStmt(hasCondition(expr().bind("cond")))),
+                hasParent(compoundStmt())
+                ),
+            unless(equalsBoundNode("cond"))
+            )
+        .bind("ternary"),
+        &stmtHandler);
     finder.matchAST(context);
 }
