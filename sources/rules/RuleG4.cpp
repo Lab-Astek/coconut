@@ -28,10 +28,7 @@ void coconut::RuleG4::runCheck(ReportHandler &report,
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
         if (auto stmt = result.Nodes.getNodeAs<clang::VarDecl>("var")) {
-            if (auto loc = ReportHandler::getExpansionLoc(
-                    compiler, stmt->getLocation())) {
-                report.reportViolation(*this, compiler, *loc);
-            }
+            report.reportViolation(*this, compiler, stmt->getLocation());
         }
     });
 

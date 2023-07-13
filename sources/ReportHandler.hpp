@@ -8,8 +8,8 @@
 #ifndef COCONUT_REPORTHANDLER_HPP
 #define COCONUT_REPORTHANDLER_HPP
 
-#include <optional>
 #include <memory>
+#include <optional>
 
 namespace coconut {
 class Rule;
@@ -29,17 +29,13 @@ public:
     explicit ReportHandler(std::string const &path);
 
     void reportViolation(coconut::Rule const &rule,
-        clang::CompilerInstance &compiler,
-        clang::SourceLocation const &location);
+        clang::CompilerInstance &compiler, clang::SourceLocation location,
+        bool expansion = true);
     void reportViolation(coconut::Rule const &rule,
         clang::CompilerInstance &compiler,
-        clang::SourceLocation const &location, int line);
+        clang::SourceLocation const &location, unsigned int line);
 
     void report(std::string const &message);
-
-    static std::optional<clang::SourceLocation> getExpansionLoc(
-        clang::CompilerInstance &compiler,
-        clang::SourceLocation const &location);
 
 private:
     std::unique_ptr<llvm::raw_fd_ostream> _file;

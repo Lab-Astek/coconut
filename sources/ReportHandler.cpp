@@ -27,37 +27,25 @@ void ReportHandler::report(std::string const &str)
 }
 
 void ReportHandler::reportViolation(coconut::Rule const &rule,
-    clang::CompilerInstance &compiler, clang::SourceLocation const &location)
+    clang::CompilerInstance &compiler, clang::SourceLocation location,
+    bool expansion)
 {
     clang::SourceManager &sm = compiler.getSourceManager();
+    if (expansion)
+        location = sm.getExpansionLoc(location);
     llvm::StringRef filename = sm.getFilename(location);
     unsigned int number = sm.getSpellingLineNumber(location);
 
     filename.consume_front("/mnt/build/");
-    *_file << filename << ":" << number << ": " << rule.getIdentifier()
-          << '\n';
+    *_file << filename << ":" << number << ": " << rule.getIdentifier() << '\n';
 }
 
-void ReportHandler::reportViolation(coconut::Rule const &rule, clang::CompilerInstance &compiler,
-    clang::SourceLocation const &location, int line)
+void ReportHandler::reportViolation(coconut::Rule const &rule,
+    clang::CompilerInstance &compiler, clang::SourceLocation const &location,
+    unsigned int line)
 {
     clang::SourceManager &sm = compiler.getSourceManager();
     llvm::StringRef filename = sm.getFilename(location);
 
-    *_file << filename << ":" << line << ": " << rule.getIdentifier()
-          << '\n';
-}
-
-std::optional<clang::SourceLocation> ReportHandler::getExpansionLoc(
-    clang::CompilerInstance &compiler,
-    clang::SourceLocation const &location)
-{
-    clang::SourceManager &sm = compiler.getSourceManager();
-    clang::SourceLocation expansion = sm.getExpansionLoc(location);
-    clang::FileID id = sm.getFileID(expansion);
-    clang::FileID file = sm.getMainFileID();
-
-    if (id != file)
-        return std::nullopt;
-    return expansion;
+    *_file << filename << ":" << line << ": " << rule.getIdentifier() << '\n';
 }

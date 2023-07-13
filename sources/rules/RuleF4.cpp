@@ -10,6 +10,7 @@
 
 #include <clang/AST/ASTContext.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
+#include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/Frontend/CompilerInstance.h>
 
 using namespace clang::ast_matchers;
@@ -26,7 +27,8 @@ void coconut::RuleF4::runCheck(ReportHandler &report,
 {
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
-        if (auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function")) {
+        if (auto func
+            = result.Nodes.getNodeAs<clang::FunctionDecl>("function")) {
             clang::SourceManager &sm = compiler.getSourceManager();
 
             clang::SourceLocation begin = func->getBody()->getBeginLoc();
@@ -35,11 +37,14 @@ void coconut::RuleF4::runCheck(ReportHandler &report,
             unsigned int start_number = sm.getSpellingLineNumber(begin);
             unsigned int end_number = sm.getSpellingLineNumber(end);
 
-            for (int i = start_number + line_limit + 1; i < end_number; ++i)
+            for (unsigned int i = start_number + line_limit + 1; i < end_number;
+                 ++i)
                 report.reportViolation(*this, compiler, begin, i);
         }
     });
 
-    finder.addMatcher(functionDecl(isDefinition()).bind("function"), &handler);
+    finder.addMatcher(
+        functionDecl(isDefinition(), isExpansionInMainFile()).bind("function"),
+        &handler);
     finder.matchAST(context);
 }
