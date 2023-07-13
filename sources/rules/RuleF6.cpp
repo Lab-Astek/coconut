@@ -17,7 +17,7 @@
 using namespace clang::ast_matchers;
 
 coconut::RuleF6::RuleF6()
-    : Rule("MAJOR:C-F6", "function without parameters should take void as his only parameter")
+    : Rule("MAJOR:C-F6", "function without parameters should take void as its only parameter")
 {
 }
 
