@@ -36,6 +36,8 @@ int main(void)
     ternary_as_control_flow(0);
     printf(FP_FMT(d), d);
     putchar('\n');
-    if (d == 1.0)
+    if (d == 1.0 ? 1 : 0)
         3 ? nested_ternaries(1) : nested_ternaries(2);
+    else
+        1 ? nested_ternaries(1) : nested_ternaries(2);
 }
