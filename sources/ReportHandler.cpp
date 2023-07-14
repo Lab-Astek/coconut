@@ -11,12 +11,13 @@
 #include <clang/Basic/SourceManager.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/FileSystem.h>
 #include <system_error>
 
 ReportHandler::ReportHandler(std::string const &path)
 {
     std::error_code ec;
-    _file = std::make_unique<llvm::raw_fd_ostream>(path, ec);
+    _file = std::make_unique<llvm::raw_fd_ostream>(path, ec, llvm::sys::fs::OF_Append);
     if (ec)
         throw std::system_error(ec);
 }

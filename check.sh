@@ -53,4 +53,4 @@ find "$COPY_DEST" \
      \( -path "$COPY_DEST"/bonus \
      -o -path "$COPY_DEST"/tests \) -prune \
      -o \( -name '*.c' -o -name '*.h' \) -print0 \
-    | xargs -0 coconut -p "$COPY_DEST" -o "$REPORT"
+    | xargs -0 -n 1 coconut -p "$COPY_DEST" -o "$REPORT"
