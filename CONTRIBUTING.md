@@ -33,3 +33,13 @@ When adding a rule to Coconut, the following steps should be followed:
 8. Iterate on the reviews and requests made.
 9. When everything is OK and approved, your PR will be merged into `main`.
 10. Congratulations, you have now added a rule to Coconut!
+
+## Useful links about Clang's libTooling
+
+[Introduction to the clang AST (video)](https://clang.llvm.org/docs/IntroductionToTheClangAST.html)
+
+[Introduction to Lib AST Matchers](https://clang.llvm.org/docs/LibASTMatchers.html)
+
+[AST Matchers Reference](https://clang.llvm.org/docs/LibASTMatchersReference.html)
+
+[The coding style of course](https://intra.epitech.eu/file/Public/technical-documentations/C/epitech_c_coding_style.pdf)
