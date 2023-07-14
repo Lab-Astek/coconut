@@ -5,6 +5,7 @@
 ** F2
 */
 
+#include "Constants.hpp"
 #include "LambdaCallback.hpp"
 #include "rules/Rules.hpp"
 
@@ -15,11 +16,9 @@
 #include <llvm/Support/Casting.h>
 
 #include <regex>
-#include <iostream>
+#include <string>
 
 using namespace clang::ast_matchers;
-
-static constexpr unsigned int minimalVarSize = 3;
 
 coconut::RuleF2::RuleF2()
     : Rule("MINOR:C-F2", "functions name must match snake_case convention and be in English")
@@ -33,16 +32,15 @@ void coconut::RuleF2::runCheck(ReportHandler &report,
 
     LambdaCallback handler([&] (MatchFinder::MatchResult const &result) {
         auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function");
-        std::regex const snakeCaseRegex("[a-z]+(?:_[a-z]+)*");
+        std::regex const snakeCaseReg(snakeCaseRegex);
 
         if (not func)
             return;
 
         // Check if the function name doesn't respect the snake_case convention
-        if (not std::regex_match(func->getName().str(), snakeCaseRegex))
-            report.reportViolation(*this, compiler, func->getLocation());
         // Also, we check if the function name is not shorter than 3 characters
-        else if (func->getName().str().size() < minimalVarSize)
+        if (not std::regex_match(func->getName().str(), snakeCaseReg)
+            or func->getName().size() < coconut::minimalFuncNameSize)
             report.reportViolation(*this, compiler, func->getLocation());
 
     });
