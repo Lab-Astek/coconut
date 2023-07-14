@@ -29,7 +29,7 @@ void coconut::RuleF5::runCheck(ReportHandler &report,
         if (auto func
             = result.Nodes.getNodeAs<clang::FunctionDecl>("function")) {
             unsigned int nbParams = func->getNumParams();
-            if (nbParams > coconut::params_limit)
+            if (nbParams > coconut::PARAMS_LIMIT)
                 report.reportViolation(*this, compiler, func->getLocation());
         }
     });

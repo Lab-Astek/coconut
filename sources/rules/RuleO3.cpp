@@ -31,7 +31,7 @@ void coconut::RuleO3::runCheck(ReportHandler &report,
         if (auto func
             = result.Nodes.getNodeAs<clang::FunctionDecl>("function")) {
             func_nbr++;
-            if (func_nbr > coconut::function_limit)
+            if (func_nbr > coconut::FUNCTION_LIMIT)
                 report.reportViolation(*this, compiler, func->getLocation());
         }
     });

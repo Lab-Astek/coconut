@@ -31,7 +31,7 @@ void coconut::RuleF2::runCheck(ReportHandler &report,
 
     LambdaCallback handler([&] (MatchFinder::MatchResult const &result) {
         auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function");
-        std::regex const snakeCaseReg(snakeCaseRegex);
+        std::regex const snakeCaseReg(coconut::SNAKECASE_REGEX);
 
         if (not func)
             return;
@@ -39,7 +39,7 @@ void coconut::RuleF2::runCheck(ReportHandler &report,
         // Check if the function name doesn't respect the snake_case convention
         // Also, we check if the function name is not shorter than 3 characters
         if (not std::regex_match(func->getName().str(), snakeCaseReg)
-            or func->getName().size() < coconut::minimalFuncNameSize)
+            or func->getName().size() < coconut::MINIMAL_FUNC_NAME_SIZE)
             report.reportViolation(*this, compiler, func->getLocation());
 
     });
