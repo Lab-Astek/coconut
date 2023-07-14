@@ -17,26 +17,33 @@
 using namespace clang::ast_matchers;
 
 coconut::RuleF6::RuleF6()
-    : Rule("MAJOR:C-F6", "function without parameters should take void as its only parameter")
+    : Rule(
+        "MAJOR:C-F6",
+        "function without parameters should take void as its only parameter"
+    )
 {
 }
 
-void coconut::RuleF6::runCheck(ReportHandler &report,
-    clang::CompilerInstance &compiler, clang::ASTContext &context) const
+void coconut::RuleF6::runCheck(
+    ReportHandler &report, clang::CompilerInstance &compiler,
+    clang::ASTContext &context
+) const
 {
     MatchFinder finder;
 
     // This matcher will find every function definition in a source file.
-    // It will report a violation if the function doesn't respect the ISO/ANSI C syntax
-    LambdaCallback handler([&] (MatchFinder::MatchResult const &result) {
+    // It will report a violation if the function doesn't respect the ISO/ANSI C
+    // syntax
+    LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
         auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function");
 
         if (not func)
             return;
 
-        // If the function definition doesn't have any prototype, report a violation
+        // If the function definition doesn't have any prototype, report a
+        // violation
         if (not func->hasPrototype())
-                report.reportViolation(*this, compiler, func->getLocation());
+            report.reportViolation(*this, compiler, func->getLocation());
     });
 
     finder.addMatcher(
@@ -45,7 +52,8 @@ void coconut::RuleF6::runCheck(ReportHandler &report,
             isDefinition(),
             // so, we don't want to match any function declared in headers
             isExpansionInMainFile()
-        ).bind("function"),
+        )
+            .bind("function"),
         &handler
     );
     finder.matchAST(context);

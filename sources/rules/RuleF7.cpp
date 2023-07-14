@@ -22,24 +22,30 @@ coconut::RuleF7::RuleF7()
 {
 }
 
-void coconut::RuleF7::runCheck(ReportHandler &report,
-    clang::CompilerInstance &compiler, clang::ASTContext &context) const
+void coconut::RuleF7::runCheck(
+    ReportHandler &report, clang::CompilerInstance &compiler,
+    clang::ASTContext &context
+) const
 {
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
-        if (auto stmt = result.Nodes.getNodeAs<clang::FunctionDecl>("func")) {
-            for (unsigned int i = 0; i < stmt->getNumParams(); i++) {
-                auto param = stmt->getParamDecl(i);
-                if (param->getType()->isStructureOrClassType()) {
-                    report.reportViolation(
-                        *this, compiler, param->getLocation());
-                }
+        auto stmt = result.Nodes.getNodeAs<clang::FunctionDecl>("func");
+        if (!stmt)
+            return;
+
+        for (unsigned int i = 0; i < stmt->getNumParams(); i++) {
+            auto param = stmt->getParamDecl(i);
+            // If the parameter is a structure (by value), report it
+            if (param->getType()->isStructureOrClassType()) {
+                report.reportViolation(*this, compiler, param->getLocation());
             }
         }
     });
 
+    // Match all function definitions in the main file
     finder.addMatcher(
         functionDecl(isDefinition(), isExpansionInMainFile()).bind("func"),
-        &handler);
+        &handler
+    );
     finder.matchAST(context);
 }

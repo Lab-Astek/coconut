@@ -34,11 +34,9 @@ void ReportHandler::reportViolation(coconut::Rule const &rule,
     clang::SourceManager &sm = compiler.getSourceManager();
     if (expansion)
         location = sm.getExpansionLoc(location);
-    llvm::StringRef filename = sm.getFilename(location);
     unsigned int number = sm.getSpellingLineNumber(location);
 
-    filename.consume_front("/mnt/build/");
-    *_file << filename << ":" << number << ": " << rule.getIdentifier() << '\n';
+    reportViolation(rule, compiler, location, number);
 }
 
 void ReportHandler::reportViolation(coconut::Rule const &rule,
@@ -48,5 +46,6 @@ void ReportHandler::reportViolation(coconut::Rule const &rule,
     clang::SourceManager &sm = compiler.getSourceManager();
     llvm::StringRef filename = sm.getFilename(location);
 
+    filename.consume_front("/mnt/build/");
     *_file << filename << ":" << line << ": " << rule.getIdentifier() << '\n';
 }

@@ -32,6 +32,7 @@ void coconut::RuleC3::runCheck(ReportHandler &report,
         }
     });
 
+    // Match all goto statements in the main file
     finder.addMatcher(gotoStmt(isExpansionInMainFile()).bind("goto"), &handler);
     finder.matchAST(context);
 }

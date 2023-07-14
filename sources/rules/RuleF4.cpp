@@ -21,8 +21,10 @@ coconut::RuleF4::RuleF4()
 {
 }
 
-void coconut::RuleF4::runCheck(ReportHandler &report,
-    clang::CompilerInstance &compiler, clang::ASTContext &context) const
+void coconut::RuleF4::runCheck(
+    ReportHandler &report, clang::CompilerInstance &compiler,
+    clang::ASTContext &context
+) const
 {
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
@@ -36,14 +38,17 @@ void coconut::RuleF4::runCheck(ReportHandler &report,
             unsigned int start_number = sm.getSpellingLineNumber(begin);
             unsigned int end_number = sm.getSpellingLineNumber(end);
 
-            for (unsigned int i = start_number + coconut::LINE_LIMIT + 1; i < end_number;
-                 ++i)
+            // Report a violation on each line that exceeds the limit
+            for (unsigned int i = start_number + coconut::LINE_LIMIT + 1;
+                 i < end_number; ++i)
                 report.reportViolation(*this, compiler, begin, i);
         }
     });
 
+    // Match all function definitions in the main file
     finder.addMatcher(
         functionDecl(isDefinition(), isExpansionInMainFile()).bind("function"),
-        &handler);
+        &handler
+    );
     finder.matchAST(context);
 }
