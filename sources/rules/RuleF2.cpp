@@ -16,7 +16,6 @@
 #include <llvm/Support/Casting.h>
 
 #include <regex>
-#include <string>
 
 using namespace clang::ast_matchers;
 
