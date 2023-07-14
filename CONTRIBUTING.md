@@ -18,7 +18,7 @@ Each rule check if any violations exist, and reports them if necessary.
 This script builds the docker image, and runs all the functional tests.
 
 ### `tests`
-Directory containing all the test files related to the functional tests for Coconut.
+Directory containing all the test files related to the functional tests for Coconut. Checkout the [test document](tests/README.md) to know how to write tests.
 
 ## Adding a rule to Coconut
 When adding a rule to Coconut, the following steps should be followed:
@@ -27,7 +27,7 @@ When adding a rule to Coconut, the following steps should be followed:
 2. Create a source file named `sources/rules/RuleXX.cpp`.
 3. Add the source file to the `CMakeLists.txt` so it compiles.
 4. Add the rule to the `sources/rules/Rules.inc` so the required class is declared and enabled. 
-5. Add comprehensive functional tests for the rule.
+5. Add comprehensive functional [tests](tests/README.md) for the rule.
 6. Write the rule (please comment it while doing so, and respect the internal coding style).
 7. When all the tests pass (with `./ftests.sh`), open a pull request named `Rule XX: XXXX` (with with `XX` being the rule's identifier, and `XXXX` the comment) aimed at being merged into `main`, and request a review.
 8. Iterate on the reviews and requests made.
