@@ -5,6 +5,7 @@ RUN dnf install -y clang-devel bear
 
 COPY CMakeLists.txt /app
 COPY sources /app/sources
+COPY include /app/include
 
 RUN cmake -B build
 RUN cmake --build build -j

@@ -5,6 +5,7 @@
 ** O3
 */
 
+#include "Constants.hpp"
 #include "LambdaCallback.hpp"
 #include "rules/Rules.hpp"
 
@@ -14,8 +15,6 @@
 #include <clang/Frontend/CompilerInstance.h>
 
 using namespace clang::ast_matchers;
-
-static constexpr std::size_t function_limit = 5;
 
 coconut::RuleO3::RuleO3()
     : Rule("MAJOR:C-O3", "too many function declaration")
@@ -32,7 +31,7 @@ void coconut::RuleO3::runCheck(ReportHandler &report,
         if (auto func
             = result.Nodes.getNodeAs<clang::FunctionDecl>("function")) {
             func_nbr++;
-            if (func_nbr > function_limit)
+            if (func_nbr > coconut::FUNCTION_LIMIT)
                 report.reportViolation(*this, compiler, func->getLocation());
         }
     });

@@ -5,6 +5,7 @@
 ** F5
 */
 
+#include "Constants.hpp"
 #include "LambdaCallback.hpp"
 #include "rules/Rules.hpp"
 
@@ -14,8 +15,6 @@
 #include <clang/Frontend/CompilerInstance.h>
 
 using namespace clang::ast_matchers;
-
-static constexpr std::size_t params_limit = 4;
 
 coconut::RuleF5::RuleF5()
     : Rule("MAJOR:C-F5", "function should not have more than 4 parameters")
@@ -30,7 +29,7 @@ void coconut::RuleF5::runCheck(ReportHandler &report,
         if (auto func
             = result.Nodes.getNodeAs<clang::FunctionDecl>("function")) {
             unsigned int nbParams = func->getNumParams();
-            if (nbParams > params_limit)
+            if (nbParams > coconut::PARAMS_LIMIT)
                 report.reportViolation(*this, compiler, func->getLocation());
         }
     });

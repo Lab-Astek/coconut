@@ -5,6 +5,7 @@
 ** F4
 */
 
+#include "Constants.hpp"
 #include "LambdaCallback.hpp"
 #include "rules/Rules.hpp"
 
@@ -14,8 +15,6 @@
 #include <clang/Frontend/CompilerInstance.h>
 
 using namespace clang::ast_matchers;
-
-static constexpr std::size_t line_limit = 20;
 
 coconut::RuleF4::RuleF4()
     : Rule("MAJOR:C-F4", "function should not exceed 20 lines")
@@ -37,7 +36,7 @@ void coconut::RuleF4::runCheck(ReportHandler &report,
             unsigned int start_number = sm.getSpellingLineNumber(begin);
             unsigned int end_number = sm.getSpellingLineNumber(end);
 
-            for (unsigned int i = start_number + line_limit + 1; i < end_number;
+            for (unsigned int i = start_number + coconut::LINE_LIMIT + 1; i < end_number;
                  ++i)
                 report.reportViolation(*this, compiler, begin, i);
         }
