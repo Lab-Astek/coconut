@@ -6,6 +6,15 @@ In this document are enumerated the different guidelines related to the contribu
 ### `Dockerfile`
 The file describes how the docker image for coconut should be built. It should rarely change.
 
+### `check.sh`
+This is the file that invokes the `coconut` binary on each file to check.
+It also generates the necessary compilation database using [Bear](https://github.com/rizsotto/Bear).
+
+It should be run inside of the docker, but supports running outside of it. If it detects it is being run inside docker, it will copy the delivery directory to another directory, to avoid polluting the delivery directory with compilation artifacts.
+
+### `CMakeLists.txt`
+We use CMake to build this project. If you don't know how it works, don't worry, you will probably just need to add entries to the SOURCES list.
+
 ### `sources`
 Directory containing the C++ source files for Coconut.
 
