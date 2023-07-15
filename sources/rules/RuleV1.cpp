@@ -13,6 +13,8 @@
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Frontend/CompilerInstance.h>
+#include <clang/Lex/Preprocessor.h>
+#include <clang/Lex/PreprocessingRecord.h>
 
 #include <regex>
 
@@ -92,6 +94,17 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
             .bind("global_variable"),
         &globalVariables
     );
+
+    for (clang::PreprocessedEntity *entity: *(compiler.getPreprocessor().getPreprocessingRecord())) {
+
+        std::cout << "helo" << std::endl;
+        clang::MacroDefinitionRecord *macro = llvm::dyn_cast<clang::MacroDefinitionRecord>(entity);
+
+        if (macro == nullptr)
+            continue;
+
+        std::cout << macro->getName()->getName().str() << std::endl;
+    }
 
     finder.matchAST(context);
 }

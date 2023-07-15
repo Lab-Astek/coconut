@@ -9,6 +9,7 @@
 #include "rules/Rules.hpp"
 
 #include <clang/Frontend/CompilerInstance.h>
+#include <clang/Lex/PreprocessorOptions.h>
 
 using namespace coconut;
 
@@ -24,6 +25,13 @@ std::unique_ptr<clang::ASTConsumer> StyleAction::CreateASTConsumer(
     clang::CompilerInstance &ci, llvm::StringRef inFile)
 {
     return std::make_unique<StyleConsumer>(*this, ci, inFile);
+}
+
+bool StyleAction::BeginSourceFileAction(clang::CompilerInstance &compiler)
+{
+    compiler.getPreprocessor().getPreprocessorOpts().DetailedRecord = 1;
+
+    return true;
 }
 
 StyleConsumer::StyleConsumer(

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#define my_macro_constant 3
 
 int const my_constant = 0;
 
