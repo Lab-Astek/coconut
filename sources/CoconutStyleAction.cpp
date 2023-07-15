@@ -27,10 +27,9 @@ std::unique_ptr<clang::ASTConsumer> StyleAction::CreateASTConsumer(
     return std::make_unique<StyleConsumer>(*this, ci, inFile);
 }
 
-bool StyleAction::BeginSourceFileAction(clang::CompilerInstance &compiler)
+bool StyleAction::BeginInvocation(clang::CompilerInstance &compiler)
 {
-    compiler.getPreprocessor().getPreprocessorOpts().DetailedRecord = 1;
-
+    compiler.getInvocation().getPreprocessorOpts().DetailedRecord = true;
     return true;
 }
 
