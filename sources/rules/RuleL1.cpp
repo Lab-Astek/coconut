@@ -62,11 +62,12 @@ void coconut::RuleL1::runCheck(
                     lines_used.insert(i);
                     continue;
                 }
-                report.reportViolation(*this, compiler, stmt->getBeginLoc(), i);
+                report.reportViolation(*this, compiler, start, i);
                 return;
             }
         };
 
+    detectStmt:
         if (auto ifStmt = llvm::dyn_cast<clang::IfStmt>(stmt)) {
             end = ifStmt->getRParenLoc();
             // Handle the condition part
@@ -103,6 +104,9 @@ void coconut::RuleL1::runCheck(
         } else if (llvm::isa<clang::NullStmt>(stmt)) {
             // Ignore those, we tolerate this:
             // for (int i = 0; i < 10; i++); // <-- this semicolon
+        } else if (auto caseStmt = llvm::dyn_cast<clang::SwitchCase>(stmt)) {
+            stmt = caseStmt->getSubStmt();
+            goto detectStmt; // try again with the sub-statement
         } else {
             handleStmt();
         }
@@ -121,8 +125,13 @@ void coconut::RuleL1::runCheck(
                 hasParent(doStmt(hasCondition(expr().bind("cond")))),
                 hasParent(compoundStmt()),
                 // If parent is anything else, it's an expression
-                // However, assignments are considered statements in this rule
-                binaryOperator(isAssignmentOperator())
+                allOf(
+                    // However, assignments are considered statements in this
+                    // rule
+                    binaryOperator(isAssignmentOperator()),
+                    // Unless it's in a case or default, to avoid matching twice
+                    unless(hasParent(switchCase()))
+                )
             ),
             // that's where we check it's not the condition of a statement
             unless(equalsBoundNode("cond")),

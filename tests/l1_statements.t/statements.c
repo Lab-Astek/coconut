@@ -83,5 +83,18 @@ void test_do_while(void)
 
 int main(void)
 {
+    int b = 0;
+
+    switch (b) {
+    case 0: printf("0\n"); break;
+    case 1:
+        b = 3;
+    case 7:
+        if (getchar() > 64) {
+            printf("yes\n");
+            break;
+        } else
+            return 0;
+    }
     free(allocate_stuff());
 }
