@@ -21,8 +21,10 @@ coconut::RuleF5::RuleF5()
 {
 }
 
-void coconut::RuleF5::runCheck(ReportHandler &report,
-    clang::CompilerInstance &compiler, clang::ASTContext &context) const
+void coconut::RuleF5::runCheck(
+    ReportHandler &report, clang::CompilerInstance &compiler,
+    clang::ASTContext &context
+) const
 {
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
@@ -34,6 +36,10 @@ void coconut::RuleF5::runCheck(ReportHandler &report,
         }
     });
 
-    finder.addMatcher(functionDecl(isDefinition(), isExpansionInMainFile()).bind("function"), &handler);
+    // Match all function definitions in the main file
+    finder.addMatcher(
+        functionDecl(isDefinition(), isExpansionInMainFile()).bind("function"),
+        &handler
+    );
     finder.matchAST(context);
 }

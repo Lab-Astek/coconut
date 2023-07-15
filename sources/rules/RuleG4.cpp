@@ -22,8 +22,10 @@ coconut::RuleG4::RuleG4()
 {
 }
 
-void coconut::RuleG4::runCheck(ReportHandler &report,
-    clang::CompilerInstance &compiler, clang::ASTContext &context) const
+void coconut::RuleG4::runCheck(
+    ReportHandler &report, clang::CompilerInstance &compiler,
+    clang::ASTContext &context
+) const
 {
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
@@ -32,9 +34,18 @@ void coconut::RuleG4::runCheck(ReportHandler &report,
         }
     });
 
-    auto globalVar = varDecl(isDefinition(), hasStaticStorageDuration(),
-        isExpansionInMainFile(), unless(hasType(isConstQualified())),
-        hasParent(translationUnitDecl()));
+    auto globalVar = varDecl(
+        // Only match definitions, not `extern` declarations
+        isDefinition(),
+        // Only globals (statically allocated)
+        hasStaticStorageDuration(),
+        // Ignore header files
+        isExpansionInMainFile(),
+        // Ignore constants
+        unless(hasType(isConstQualified())),
+        // Ignore static variables inside functions
+        hasParent(translationUnitDecl())
+    );
     finder.addMatcher(globalVar.bind("var"), &handler);
     finder.matchAST(context);
 }

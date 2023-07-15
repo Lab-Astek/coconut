@@ -21,23 +21,28 @@ coconut::RuleO3::RuleO3()
 {
 }
 
-void coconut::RuleO3::runCheck(ReportHandler &report,
-    clang::CompilerInstance &compiler, clang::ASTContext &context) const
+void coconut::RuleO3::runCheck(
+    ReportHandler &report, clang::CompilerInstance &compiler,
+    clang::ASTContext &context
+) const
 {
     std::size_t func_nbr = 0;
 
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
-        if (auto func
-            = result.Nodes.getNodeAs<clang::FunctionDecl>("function")) {
-            func_nbr++;
-            if (func_nbr > coconut::FUNCTION_LIMIT)
-                report.reportViolation(*this, compiler, func->getLocation());
-        }
+        auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function");
+        if (!func)
+            return;
+        func_nbr++;
+        // Report each function over the limit
+        if (func_nbr > coconut::FUNCTION_LIMIT)
+            report.reportViolation(*this, compiler, func->getLocation());
     });
 
+    // Match all function definitions in the main file
     finder.addMatcher(
         functionDecl(isDefinition(), isExpansionInMainFile()).bind("function"),
-        &handler);
+        &handler
+    );
     finder.matchAST(context);
 }
