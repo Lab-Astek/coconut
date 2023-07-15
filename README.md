@@ -20,3 +20,54 @@ You then just have to invoke the `check.sh` script to run Coconut. You can also 
 
 ## Contributing
 If you want to contribute to this repository, please read the guidelines from the [contributing document](CONTRIBUTING.md).
+
+## Supported rules
+
+| Rule identifier | Status                                                   |
+|-----------------|----------------------------------------------------------|
+| C-O1            | 🍌                                                       |
+| C-O2            | ❌ Must be checked by humans                             |
+| C-O3            | ✅ Checks for five functions per file, not for coherence |
+| C-O4            | 🍌                                                       |
+| C-G1            | 🍌                                                       |
+| C-G2            | ❌🍌 Planned                                             |
+| C-G3            | ❌🍌 Planned                                             |
+| C-G4            | ✅                                                       |
+| C-G5            | ❌🍌 Planned                                             |
+| C-G6            | 🍌                                                       |
+| C-G7            | 🍌                                                       |
+| C-G8            | 🍌                                                       |
+| C-G9            | ❌ Planned                                               |
+| C-F1            | ❌ Must be checked by humans                             |
+| C-F2            | ✅ Checks snake case, not for English or verbs           |
+| C-F3            | 🍌                                                       |
+| C-F4            | ✅                                                       |
+| C-F5            | ✅                                                       |
+| C-F6            | ✅                                                       |
+| C-F7            | ✅                                                       |
+| C-F8            | ❌🍌 Planned                                             |
+| C-F9            | ❌ Would not compile as clang doesn't support them       |
+| C-L1            | ✅                                                       |
+| C-L2            | ❌ Planned                                               |
+| C-L3            | ❌ Planned                                               |
+| C-L4            | ❌🍌 Planned                                             |
+| C-L5            | ✅                                                       |
+| C-L6            | ❌ Planned                                               |
+| C-V1            | 🚧 Checks snake case, not for English                    |
+| C-V2            | ❌ Must be checked by humans                             |
+| C-V3            | ❌ Planned                                               |
+| C-C1            | ❌🍌 Planned                                             |
+| C-C2            | ✅                                                       |
+| C-C3            | ✅                                                       |
+| C-H1            | ❌ Planned                                               |
+| C-H2            | ❌ Planned                                               |
+| C-H3            | ❌ Planned                                               |
+| C-A1            | ❌ Must be checked by humans                             |
+| C-A2            | ❌ Must be checked by humans                             |
+| C-A3            | 🍌                                                       |
+| C-A4            | ❌ Must be checked by humans                             |
+
+- 🍌 = Handled by Banana
+- ✅ = Handled by Coconut
+- 🚧 = Work in Progress
+- ❌ = Not supported

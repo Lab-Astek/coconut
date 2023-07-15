@@ -33,6 +33,7 @@ set(SOURCES
     sources/rules/RuleF6.cpp
     sources/rules/RuleF7.cpp
 
+    sources/rules/RuleL1.cpp
     sources/rules/RuleL5.cpp
 
     sources/rules/RuleC2.cpp
