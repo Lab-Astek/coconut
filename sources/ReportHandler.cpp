@@ -8,6 +8,7 @@
 #include "ReportHandler.hpp"
 #include "Rule.hpp"
 
+#include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceManager.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <llvm/ADT/StringRef.h>
@@ -44,8 +45,15 @@ void ReportHandler::reportViolation(coconut::Rule const &rule,
     unsigned int line)
 {
     clang::SourceManager &sm = compiler.getSourceManager();
+    clang::FileManager &fm = sm.getFileManager();
     llvm::StringRef filename = sm.getFilename(location);
+    auto entry = fm.getFileRef(filename);
 
+    // We get the absolute path and remove docker's /mnt/build/ prefix
+    // so that the path is relative to the project's root, not to the directory
+    // of the source's associated Makefile
+    if (entry)
+        filename = entry.get().getFileEntry().tryGetRealPathName();
     filename.consume_front("/mnt/build/");
     *_file << filename << ":" << line << ": " << rule.getIdentifier() << '\n';
 }
