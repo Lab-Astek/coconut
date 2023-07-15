@@ -28,6 +28,59 @@ void *allocate_stuff(void)
     return NULL;
 }
 
+void test_if(int a)
+{
+    if (a > 0) {
+        printf("a is positive\n");
+    } else if (a < 0) {
+        printf("a is negative\n");
+    } else {
+        printf("a is zero\n");
+    }
+    if (a > 0)
+        printf("a is valid\n");
+    else return;
+    a--;
+    if (a > 0)
+        printf("a is still valid\n"); else
+        return;
+}
+
+void test_loops(void)
+{
+    unsigned j = 10;
+
+    for (int i = 0; i < 10; i++) printf("i is %d\n", i);
+    while (j > 5) j--;
+    for (int i = 0; i < 3; i += 1)
+        printf("i is %d\n", i);
+    while (j > 2)
+        j--;
+    switch (j) {
+    case 0:
+    case 1: break;
+    case 2:
+        printf("j is 2\n");
+        break;
+    }
+}
+
+void test_do_while(void)
+{
+    int j = 0;
+
+    do {
+        printf("Enter a character: ");
+        j = getchar();
+    } while (j > 32);
+    do { printf("Enter a character: ");
+        j = getchar();
+    } while (j > 32);
+    do {
+        printf("Enter a character: ");
+        j = getchar(); } while (j > 32);
+}
+
 int main(void)
 {
     free(allocate_stuff());

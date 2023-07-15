@@ -100,6 +100,9 @@ void coconut::RuleL1::runCheck(
             handleStmt();
         } else if (llvm::isa<clang::CompoundStmt>(stmt)) {
             // Ignore those, handled by rule L4
+        } else if (llvm::isa<clang::NullStmt>(stmt)) {
+            // Ignore those, we tolerate this:
+            // for (int i = 0; i < 10; i++); // <-- this semicolon
         } else {
             handleStmt();
         }
@@ -123,7 +126,12 @@ void coconut::RuleL1::runCheck(
             ),
             // that's where we check it's not the condition of a statement
             unless(equalsBoundNode("cond")),
-            unless(hasParent(forStmt()))
+            unless(allOf(
+                // Content inside for loops can be ignored
+                hasParent(forStmt(hasBody(stmt().bind("for-body")))),
+                // Unless it's its body
+                unless(equalsBoundNode("for-body"))
+            ))
         )
             .bind("statement"),
         &statements
