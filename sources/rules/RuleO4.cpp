@@ -19,7 +19,7 @@
 using namespace clang::ast_matchers;
 
 coconut::RuleO4::RuleO4()
-    : Rule("MINOR:C-O4", "file names and folders must be in English, according to the snake_case convention")
+    : Rule("MINOR:C-O4", "file names must be in snake_case convention")
 {
 }
 
