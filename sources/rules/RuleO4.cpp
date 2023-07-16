@@ -14,6 +14,8 @@
 #include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/Frontend/CompilerInstance.h>
 
+#include <regex>
+
 using namespace clang::ast_matchers;
 
 coconut::RuleO4::RuleO4()
@@ -26,4 +28,13 @@ void coconut::RuleO4::runCheck(
     clang::ASTContext &context
 ) const
 {
+    clang::SourceManager &sm = compiler.getSourceManager();
+    std::string filename = sm.getFileEntryForID(sm.getMainFileID())->getName().str();
+    std::regex const snakeCaseReg(coconut::SNAKECASE_REGEX);
+
+    filename = filename.substr(filename.find_last_of('/') + 1);
+    filename = filename.substr(0, filename.find_last_of('.'));
+
+    if (not std::regex_match(filename, snakeCaseReg))
+        report.reportViolation(*this, compiler, sm.getLocForStartOfFile(sm.getMainFileID()));
 }
