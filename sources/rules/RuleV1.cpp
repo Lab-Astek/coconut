@@ -30,6 +30,8 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 {
     MatchFinder finder;
 
+    // First callback that will be call to handle "basic" variables who
+    // doesn't respect the snake_case convention.
     LambdaCallback variables([&] (MatchFinder::MatchResult const &result) {
         auto var = result.Nodes.getNodeAs<clang::VarDecl>("variable");
 
@@ -46,6 +48,7 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
         std::regex regexToCheck(coconut::SNAKECASE_REGEX);
 
+        // Here we don't want to handle global variables
         if (var->hasGlobalStorage())
             return;
 
@@ -53,6 +56,9 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
             report.reportViolation(*this, compiler, loc);
     });
 
+
+    // Then this callback will be call to handle const global variables that need to be
+    // in maj snake_case.
     LambdaCallback globalVariables([&] (MatchFinder::MatchResult const &result) {
         auto var = result.Nodes.getNodeAs<clang::VarDecl>("global_variable");
 
@@ -73,6 +79,14 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
             report.reportViolation(*this, compiler, loc);
     });
 
+
+    // Here, tags declaration will be handled:
+    //      enum object {
+    //          KNIFE,
+    //          HAMMER
+    //      };
+    //
+    // so, we'll check the tag object
     LambdaCallback tags([&] (MatchFinder::MatchResult const &result) {
         auto tag = result.Nodes.getNodeAs<clang::TagDecl>("tag_decl");
 
@@ -83,14 +97,11 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
         if (not std::regex_match(tag->getNameAsString(), regexToCheck))
             report.reportViolation(*this, compiler, tag->getLocation());
-
-        clang::EnumDecl const *val = llvm::dyn_cast<clang::EnumDecl>(tag);
-
-        if (!val)
-            return;
-
     });
 
+
+
+    // Here, we'll check that enumerators of enum are in maj snake_case
     LambdaCallback enums([&] (MatchFinder::MatchResult const &result) {
         auto e = result.Nodes.getNodeAs<clang::EnumDecl>("enums");
 
@@ -106,16 +117,39 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
     });
 
-    finder.addMatcher(
-        varDecl(
-            isExpansionInMainFile()
-        ).bind("variable"),
-        &variables
-    );
+
+    // Here, typedefs we'll be checked, they need to be in snake_case and to
+    // finish with _t suffix
+    LambdaCallback typedefs([&] (MatchFinder::MatchResult const &result) {
+        auto my_typedef = result.Nodes.getNodeAs<clang::TypedefDecl>("typedef");
+
+        if (!my_typedef)
+            return;
+
+        std::regex regexToCheck(coconut::TYPEDEF_SNAKECASE_REGEX);
+
+        if (not std::regex_match(my_typedef->getNameAsString(), regexToCheck))
+            report.reportViolation(*this, compiler, my_typedef->getLocation());
+
+    });
+
+
+    // Variables matcher:
 
     finder.addMatcher(
         varDecl(
-            //// we don't want to catch  declared in headers
+            // we don't want to catch  declared in headers
+            isExpansionInMainFile()
+        )
+            .bind("variable"),
+        &variables
+    );
+
+    // Const global variables matcher:
+
+    finder.addMatcher(
+        varDecl(
+            // we don't want to catch  declared in headers
             isExpansionInMainFile(),
             // also we want to match all global variables
             hasParent(translationUnitDecl()),
@@ -126,20 +160,41 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
         &globalVariables
     );
 
+    // Tags declaration matcher:
+
     finder.addMatcher(
         tagDecl(
+            // we don't want to catch  declared in headers
             isExpansionInMainFile()
-        ).bind("tag_decl"),
+        )
+            .bind("tag_decl"),
         &tags
     );
 
+    // Enums enumerators matcher:
+
     finder.addMatcher(
         enumDecl(
+            // we don't want to catch  declared in headers
             isExpansionInMainFile()
         )
             .bind("enums"),
         &enums
     );
+
+    // Typedefs matcher:
+
+    finder.addMatcher(
+        typedefDecl(
+            // we don't want to catch  declared in headers
+            isExpansionInMainFile()
+        )
+            .bind("typedef"),
+        &typedefs
+    );
+
+    // At the end, we'll check that all macros const global are also
+    // in maj snake_case
 
     std::regex regexToCheck(coconut::GLOBAL_VAR_SNAKECASE_REGEX);
 
@@ -159,6 +214,7 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
         if (not std::regex_match(macro->getName()->getName().str(), regexToCheck))
             report.reportViolation(*this, compiler, loc);
     }
+
 
     finder.matchAST(context);
 }
