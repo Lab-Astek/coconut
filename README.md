@@ -1,7 +1,8 @@
 # 🥥 Coconut
+
 The *Code Organisation Checker for Omitting Nasty Uses of Text*, abbreviated Coconut, is an experimental tool to check the students coding style.
 
-It uses Clang's libTooling to analyse code on a semantic level, in order to enforce [Epitech's C coding style](https://intra.epitech.eu/file/Public/technical-documentations/C/epitech_c_coding_style.pdf).
+It uses Clang's libTooling to analyse code on a semantic level, in order to enforce [Epitech&#39;s C coding style](https://intra.epitech.eu/file/Public/technical-documentations/C/epitech_c_coding_style.pdf).
 
 ## Installation
 
@@ -12,6 +13,7 @@ It is mainly intended to work under Docker, so you can simply use `docker build 
 Once you have the docker image, you can replace the docker image from [coding-style.sh](https://github.com/Epitech/coding-style-checker) with the one you just built.
 
 ### Installing locally
+
 If you want to install it locally instead, here's how:
 
 First, make sure you have the dependencies installed. You must have CMake, Bear, and a development version of Clang.
@@ -29,16 +31,17 @@ $ sudo install build/coconut /usr/bin
 You then just have to invoke the `check.sh` script to run Coconut. You can also put the `check.sh` script in your PATH to make it easier.
 
 ## Contributing
+
 If you want to contribute to this repository, please read the guidelines from the [contributing document](CONTRIBUTING.md).
 
 ## Supported rules
 
 | Rule identifier | Status                                                   |
-|-----------------|----------------------------------------------------------|
+| --------------- | -------------------------------------------------------- |
 | C-O1            | 🍌                                                       |
 | C-O2            | ❌ Must be checked by humans                             |
 | C-O3            | ✅ Checks for five functions per file, not for coherence |
-| C-O4            | 🍌                                                       |
+| C-O4            | ✅ Check snake_case naming, not coherence (file)         |
 | C-G1            | 🍌                                                       |
 | C-G2            | ❌🍌 Planned                                             |
 | C-G3            | ❌🍌 Planned                                             |
