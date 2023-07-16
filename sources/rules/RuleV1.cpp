@@ -99,17 +99,15 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
     // Here, we'll check that enumerators of enum are in maj snake_case
     LambdaCallback enums([&] (MatchFinder::MatchResult const &result) {
-        auto e = result.Nodes.getNodeAs<clang::EnumDecl>("enums");
+        auto enumerator = result.Nodes.getNodeAs<clang::EnumConstantDecl>("enumerators");
 
-        if (!e)
+        if (!enumerator)
             return;
 
         std::regex regexToCheck(coconut::GLOBAL_VAR_SNAKECASE_REGEX);
 
-        for (auto const &i: e->enumerators()) {
-            if (not std::regex_match(i->getNameAsString(), regexToCheck))
-                report.reportViolation(*this, compiler, i->getLocation());
-        }
+        if (not std::regex_match(enumerator->getNameAsString(), regexToCheck))
+            report.reportViolation(*this, compiler, enumerator->getLocation());
 
     });
 
@@ -134,11 +132,14 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
     finder.addMatcher(
         varDecl(
-            // we don't want to catch  declared in headers
+            // we don't want to catch variable declared in headers
             isExpansionInMainFile(),
-            // we don't want global var
+            // also no const global
             unless(
-                hasParent(translationUnitDecl())
+                allOf(
+                    hasParent(translationUnitDecl()),
+                    hasType(isConstQualified())
+                )
             )
         )
             .bind("variable"),
@@ -163,7 +164,6 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
     finder.addMatcher(
         tagDecl(
-            // we don't want to catch  declared in headers
             isExpansionInMainFile()
         )
             .bind("tag_decl"),
@@ -173,11 +173,10 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
     // Enums enumerators matcher:
 
     finder.addMatcher(
-        enumDecl(
-            // we don't want to catch  declared in headers
+        enumConstantDecl(
             isExpansionInMainFile()
         )
-            .bind("enums"),
+            .bind("enumerators"),
         &enums
     );
 
@@ -185,7 +184,6 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
     finder.addMatcher(
         typedefDecl(
-            // we don't want to catch  declared in headers
             isExpansionInMainFile()
         )
             .bind("typedef"),
