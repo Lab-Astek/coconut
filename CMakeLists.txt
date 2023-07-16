@@ -24,6 +24,7 @@ set(SOURCES
     sources/CoconutStyleAction.cpp
 
     sources/rules/RuleO3.cpp
+    sources/rules/RuleO4.cpp
 
     sources/rules/RuleG4.cpp
 
