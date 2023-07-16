@@ -14,3 +14,7 @@ int const my_constant = 0;
 static int const my_static_constant = 0;
 
 int const my_const_array[2] = {0, 1};
+
+#define my_sec_macro_constant 3
+
+#define A_GREAT_MACRO_CONSTANT 1
