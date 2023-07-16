@@ -73,6 +73,39 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
             report.reportViolation(*this, compiler, loc);
     });
 
+    LambdaCallback tags([&] (MatchFinder::MatchResult const &result) {
+        auto tag = result.Nodes.getNodeAs<clang::TagDecl>("tag_decl");
+
+        if (!tag)
+            return;
+
+        std::regex regexToCheck(coconut::SNAKECASE_REGEX);
+
+        if (not std::regex_match(tag->getNameAsString(), regexToCheck))
+            report.reportViolation(*this, compiler, tag->getLocation());
+
+        clang::EnumDecl const *val = llvm::dyn_cast<clang::EnumDecl>(tag);
+
+        if (!val)
+            return;
+
+    });
+
+    LambdaCallback enums([&] (MatchFinder::MatchResult const &result) {
+        auto e = result.Nodes.getNodeAs<clang::EnumDecl>("enums");
+
+        if (!e)
+            return;
+
+        std::regex regexToCheck(coconut::GLOBAL_VAR_SNAKECASE_REGEX);
+
+        for (auto const &i: e->enumerators()) {
+            if (not std::regex_match(i->getNameAsString(), regexToCheck))
+                report.reportViolation(*this, compiler, i->getLocation());
+        }
+
+    });
+
     finder.addMatcher(
         varDecl(
             isExpansionInMainFile()
@@ -91,6 +124,21 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
         )
             .bind("global_variable"),
         &globalVariables
+    );
+
+    finder.addMatcher(
+        tagDecl(
+            isExpansionInMainFile()
+        ).bind("tag_decl"),
+        &tags
+    );
+
+    finder.addMatcher(
+        enumDecl(
+            isExpansionInMainFile()
+        )
+            .bind("enums"),
+        &enums
     );
 
     std::regex regexToCheck(coconut::GLOBAL_VAR_SNAKECASE_REGEX);
