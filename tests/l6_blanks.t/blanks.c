@@ -5,7 +5,7 @@
 ** test L5
 */
 
-#include <stdbool.h>
+#include <stddef.h>
 
 int blank_in_the_mid(void)
 {
@@ -23,20 +23,20 @@ int missing_blank(void)
     return i;
 }
 
-int ok_blank(void)
+char *ok_blank(void)
 {
-    int i = 0;
+    char *i = NULL;
 
     return i;
 }
 
-bool ok_no_vars(void)
+int ok_no_vars(void)
 {
-    return true;
+    return 1;
 }
 
 int main(void)
 {
-    return blank_in_the_mid() + missing_blank() + ok_blank() + ok_no_vars();
+    return blank_in_the_mid() + missing_blank() + ok_no_vars();
 
 }

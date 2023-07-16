@@ -62,14 +62,14 @@ void coconut::RuleL6::runCheck(
                 if (!varDecl)
                     break;
                 separatingLine
-                    = sm.getSpellingLineNumber(varDecl->getEndLoc()) + 1;
+                    = sm.getExpansionLineNumber(varDecl->getEndLoc()) + 1;
             }
         }
         clang::SourceLocation loc = body->getBeginLoc();
         // The first line of the function
-        unsigned int start = sm.getSpellingLineNumber(loc) + 1;
+        unsigned int start = sm.getExpansionLineNumber(loc) + 1;
         // The one-past-end line of the function (curly brace)
-        unsigned int end = sm.getSpellingLineNumber(body->getEndLoc());
+        unsigned int end = sm.getExpansionLineNumber(body->getEndLoc());
 
         // Check the content of each line of the function
         // Only the separating line should be blank
