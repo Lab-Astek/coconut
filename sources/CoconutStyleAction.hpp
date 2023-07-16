@@ -22,6 +22,8 @@ public:
     std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
         clang::CompilerInstance &compiler, llvm::StringRef inFile) override;
 
+    bool BeginInvocation(clang::CompilerInstance &compiler) override;
+
     std::vector<std::unique_ptr<Rule>> const &getRules() const
     {
         return _rules;

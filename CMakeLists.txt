@@ -38,6 +38,7 @@ set(SOURCES
     sources/rules/RuleL5.cpp
     sources/rules/RuleL6.cpp
 
+    sources/rules/RuleV1.cpp
     sources/rules/RuleV3.cpp
 
     sources/rules/RuleC2.cpp
