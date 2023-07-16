@@ -5,7 +5,7 @@
 ## f5
 ##
 
-NAME	= v1
+NAME	= v1_variables
 
 all: $(NAME)
 
