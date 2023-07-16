@@ -21,7 +21,7 @@
 using namespace clang::ast_matchers;
 
 coconut::RuleV1::RuleV1()
-    : Rule("MINOR:C-V1", "variable name should respect the snake_case convetion")
+    : Rule("MINOR:C-V1", "variable name should respect the snake_case convention")
 {
 }
 
@@ -48,17 +48,13 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
         std::regex regexToCheck(coconut::SNAKECASE_REGEX);
 
-        // Here we don't want to handle global variables
-        if (var->hasGlobalStorage())
-            return;
-
         if (not std::regex_match(var->getName().str(), regexToCheck))
             report.reportViolation(*this, compiler, loc);
     });
 
 
     // Then this callback will be call to handle const global variables that need to be
-    // in maj snake_case.
+    // in upper snake_case.
     LambdaCallback globalVariables([&] (MatchFinder::MatchResult const &result) {
         auto var = result.Nodes.getNodeAs<clang::VarDecl>("global_variable");
 
@@ -139,7 +135,11 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
     finder.addMatcher(
         varDecl(
             // we don't want to catch  declared in headers
-            isExpansionInMainFile()
+            isExpansionInMainFile(),
+            // we don't want global var
+            unless(
+                hasParent(translationUnitDecl())
+            )
         )
             .bind("variable"),
         &variables
@@ -149,7 +149,6 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
     finder.addMatcher(
         varDecl(
-            // we don't want to catch  declared in headers
             isExpansionInMainFile(),
             // also we want to match all global variables
             hasParent(translationUnitDecl()),
