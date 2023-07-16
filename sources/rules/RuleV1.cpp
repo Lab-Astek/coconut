@@ -30,10 +30,16 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 {
     MatchFinder finder;
 
-    // First callback that will be call to handle "basic" variables who
-    // doesn't respect the snake_case convention.
+    // First callback that will be call to handle "basic" variables and tags who
+    // doesn't respect the snake_case convention, exemple:
+    //      enum object {
+    //          KNIFE,
+    //          HAMMER
+    //      };
+    //
+    // so, we'll check the tag "object"
     LambdaCallback variables([&] (MatchFinder::MatchResult const &result) {
-        auto var = result.Nodes.getNodeAs<clang::VarDecl>("variable");
+        auto var = result.Nodes.getNodeAs<clang::NamedDecl>("variable");
 
         if (!var)
             return;
@@ -74,27 +80,6 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
         if (not std::regex_match(var->getName().str(), regexToCheck))
             report.reportViolation(*this, compiler, loc);
     });
-
-
-    // Here, tags declaration will be handled:
-    //      enum object {
-    //          KNIFE,
-    //          HAMMER
-    //      };
-    //
-    // so, we'll check the tag object
-    LambdaCallback tags([&] (MatchFinder::MatchResult const &result) {
-        auto tag = result.Nodes.getNodeAs<clang::TagDecl>("tag_decl");
-
-        if (!tag)
-            return;
-
-        std::regex regexToCheck(coconut::SNAKECASE_REGEX);
-
-        if (not std::regex_match(tag->getNameAsString(), regexToCheck))
-            report.reportViolation(*this, compiler, tag->getLocation());
-    });
-
 
 
     // Here, we'll check that enumerators of enum are in maj snake_case
@@ -166,8 +151,8 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
         tagDecl(
             isExpansionInMainFile()
         )
-            .bind("tag_decl"),
-        &tags
+            .bind("variable"),
+        &variables
     );
 
     // Enums enumerators matcher:
