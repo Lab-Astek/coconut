@@ -30,7 +30,7 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 {
     MatchFinder finder;
 
-    // First callback that will be call to handle "basic" variables and tags who
+    // First callback that will be call to handle "basic" variables and tags that
     // doesn't respect the snake_case convention, exemple:
     //      enum object {
     //          KNIFE,
@@ -76,8 +76,8 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
     });
 
 
-    // Here, typedefs we'll be checked, they need to be in snake_case and to
-    // finish with _t suffix
+    // Here, typedefs will be checked, they need to be in snake_case and to
+    // end with _t suffix
     LambdaCallback typedefs([&] (MatchFinder::MatchResult const &result) {
         auto my_typedef = result.Nodes.getNodeAs<clang::TypedefDecl>("typedef");
 
