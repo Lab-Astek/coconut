@@ -66,7 +66,7 @@ If you want to contribute to this repository, please read the guidelines from th
 | C-L4            | ❌🍌 Planned                                             |
 | C-L5            | ✅                                                       |
 | C-L6            | ✅                                                       |
-| C-V1            | 🚧 Checks snake case, not for English                    |
+| C-V1            | ✅ Not for English                                       |
 | C-V2            | ❌ Must be checked by humans                             |
 | C-V3            | ✅                                                       |
 | C-C1            | ❌🍌 Planned                                             |
