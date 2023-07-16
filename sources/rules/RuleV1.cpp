@@ -18,8 +18,6 @@
 
 #include <regex>
 
-#include <iostream> // TODO TMP
-
 using namespace clang::ast_matchers;
 
 coconut::RuleV1::RuleV1()
@@ -95,15 +93,23 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
         &globalVariables
     );
 
+    std::regex regexToCheck(coconut::GLOBAL_VAR_SNAKECASE_REGEX);
+
     for (clang::PreprocessedEntity *entity: *(compiler.getPreprocessor().getPreprocessingRecord())) {
 
-        std::cout << "helo" << std::endl;
         clang::MacroDefinitionRecord *macro = llvm::dyn_cast<clang::MacroDefinitionRecord>(entity);
 
         if (macro == nullptr)
             continue;
 
-        std::cout << macro->getName()->getName().str() << std::endl;
+        clang::SourceManager &sourceManager = compiler.getSourceManager();
+        auto loc = macro->getLocation();
+
+        if (not sourceManager.isWrittenInMainFile(loc))
+            continue;
+
+        if (not std::regex_match(macro->getName()->getName().str(), regexToCheck))
+            report.reportViolation(*this, compiler, loc);
     }
 
     finder.matchAST(context);
