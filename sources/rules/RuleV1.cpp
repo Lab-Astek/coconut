@@ -176,6 +176,5 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
             report.reportViolation(*this, compiler, loc);
     }
 
-
     finder.matchAST(context);
 }
