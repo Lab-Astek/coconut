@@ -50,14 +50,6 @@ void coconut::RuleV3::runCheck(
         {
             auto pointee = ptr->getPointeeLoc();
 
-            llvm::outs(
-            ) << "Line : "
-              << sm.getSpellingLineNumber(star) << '\n'
-              << "Child "
-
-              << clang::DynTypedNode::create(pointee).getNodeKind().asStringRef(
-                 )
-              << '\n';
             if (pointee.getAs<clang::ParenTypeLoc>()) {
                 // Function pointers or other parenthesized types are not
                 // concerned (ex: `int (*ptr)[10];`)
@@ -68,11 +60,6 @@ void coconut::RuleV3::runCheck(
             bool expectSpace = not pointee.getAs<clang::PointerTypeLoc>();
             int hasSpace = sm.getCharacterData(star)[-1] == ' ';
             if (hasSpace != expectSpace) {
-                llvm::outs() << "Violation on child "
-                             << clang::DynTypedNode::create(pointee)
-                                    .getNodeKind()
-                                    .asStringRef()
-                             << '\n';
                 report.reportViolation(*this, compiler, star);
                 return;
             }
@@ -86,11 +73,11 @@ void coconut::RuleV3::runCheck(
         }
         auto dynParent = list[0];
 
-        llvm::outs() << "Parent " << dynParent.getNodeKind().asStringRef()
-                     << '\n';
         if (dynParent.get<clang::TypeLoc>()
             // Functions returning pointers must not have spaces
-            and not dynParent.get<clang::FunctionProtoTypeLoc>()) {
+            and not dynParent.get<clang::FunctionProtoTypeLoc>()
+            // Arrays of pointers must not have spaces either
+            and not dynParent.get<clang::ArrayTypeLoc>()) {
             // It is unspecified whether we should put a space or not:
             // int * const a;
             // int *const a;
@@ -100,8 +87,6 @@ void coconut::RuleV3::runCheck(
         }
         int hasSpace = sm.getCharacterData(star)[1] == ' ';
         if (hasSpace) {
-            llvm::outs() << "Violation on parent "
-                         << dynParent.getNodeKind().asStringRef() << '\n';
             report.reportViolation(*this, compiler, star);
         }
     });
