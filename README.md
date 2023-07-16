@@ -5,10 +5,20 @@ It uses Clang's libTooling to analyse code on a semantic level, in order to enfo
 
 ## Installation
 
+### Using Docker
+
 It is mainly intended to work under Docker, so you can simply use `docker build .` to get the docker image.
+
+Once you have the docker image, you can replace the docker image from [coding-style.sh](https://github.com/Epitech/coding-style-checker) with the one you just built.
 
 ### Installing locally
 If you want to install it locally instead, here's how:
+
+First, make sure you have the dependencies installed. You must have CMake, Bear, and a development version of Clang.
+
+On Fedora, you can run `sudo dnf install bear clang-devel`.
+
+Then, to build locally:
 
 ```sh
 $ cmake -Bbuild
@@ -52,10 +62,10 @@ If you want to contribute to this repository, please read the guidelines from th
 | C-L3            | ❌ Planned                                               |
 | C-L4            | ❌🍌 Planned                                             |
 | C-L5            | ✅                                                       |
-| C-L6            | ❌ Planned                                               |
+| C-L6            | ✅                                                       |
 | C-V1            | 🚧 Checks snake case, not for English                    |
 | C-V2            | ❌ Must be checked by humans                             |
-| C-V3            | ❌ Planned                                               |
+| C-V3            | ✅                                                       |
 | C-C1            | ❌🍌 Planned                                             |
 | C-C2            | ✅                                                       |
 | C-C3            | ✅                                                       |

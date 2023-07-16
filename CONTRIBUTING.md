@@ -38,10 +38,11 @@ When adding a rule to Coconut, the following steps should be followed:
 4. Add the rule to the `sources/rules/Rules.inc` so the required class is declared and enabled. 
 5. Add comprehensive functional [tests](tests/README.md) for the rule.
 6. Write the rule (please comment it while doing so, and respect the internal coding style).
-7. When all the tests pass (with `./ftests.sh`), open a pull request named `Rule XX: XXXX` (with with `XX` being the rule's identifier, and `XXXX` the comment) aimed at being merged into `main`, and request a review.
-8. Iterate on the reviews and requests made.
-9. When everything is OK and approved, your PR will be merged into `main`.
-10. Congratulations, you have now added a rule to Coconut!
+7. Update the entry for the rule in the [README](README.md)
+8. When all the tests pass (with `./ftests.sh`), open a pull request named `Rule XX: XXXX` (with with `XX` being the rule's identifier, and `XXXX` the comment) aimed at being merged into `main`, and request a review.
+9. Iterate on the reviews and requests made.
+10. When everything is OK and approved, your PR will be merged into `main`.
+11. Congratulations, you have now added a rule to Coconut!
 
 ## Useful links about Clang's libTooling
 
