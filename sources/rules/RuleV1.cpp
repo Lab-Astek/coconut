@@ -59,41 +59,20 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
     });
 
 
-    // Then this callback will be call to handle const global variables that need to be
+    // Then this callback will be call to handle enum and const global variables that need to be
     // in upper snake_case.
-    LambdaCallback globalVariables([&] (MatchFinder::MatchResult const &result) {
-        auto var = result.Nodes.getNodeAs<clang::VarDecl>("global_variable");
+    LambdaCallback enumGlobalVariables([&] (MatchFinder::MatchResult const &result) {
+        auto var = result.Nodes.getNodeAs<clang::NamedDecl>("enum_global_variable");
 
         if (!var)
             return;
 
         auto loc = var->getLocation();
 
-        if (loc.isMacroID()) {
-            //// If the variable declaration is in a (system header) macro
-            //// expansion, it's probably a false positive (ex: FD_ZERO)
-            //return;
-        }
-
         std::regex regexToCheck(coconut::GLOBAL_VAR_SNAKECASE_REGEX);
 
         if (not std::regex_match(var->getName().str(), regexToCheck))
             report.reportViolation(*this, compiler, loc);
-    });
-
-
-    // Here, we'll check that enumerators of enum are in maj snake_case
-    LambdaCallback enums([&] (MatchFinder::MatchResult const &result) {
-        auto enumerator = result.Nodes.getNodeAs<clang::EnumConstantDecl>("enumerators");
-
-        if (!enumerator)
-            return;
-
-        std::regex regexToCheck(coconut::GLOBAL_VAR_SNAKECASE_REGEX);
-
-        if (not std::regex_match(enumerator->getNameAsString(), regexToCheck))
-            report.reportViolation(*this, compiler, enumerator->getLocation());
-
     });
 
 
@@ -141,8 +120,8 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
             // and then the var need to be const
             hasType(isConstQualified())
         )
-            .bind("global_variable"),
-        &globalVariables
+            .bind("enum_global_variable"),
+        &enumGlobalVariables
     );
 
     // Tags declaration matcher:
@@ -161,8 +140,8 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
         enumConstantDecl(
             isExpansionInMainFile()
         )
-            .bind("enumerators"),
-        &enums
+            .bind("enum_global_variable"),
+        &enumGlobalVariables
     );
 
     // Typedefs matcher:
