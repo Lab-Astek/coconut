@@ -47,13 +47,13 @@ void coconut::RuleV3::runCheck(
 
         clang::SourceManager &sm = compiler.getSourceManager();
         // --- Check spacing between pointer and pointee
-        {
+        do {
             auto pointee = ptr->getPointeeLoc();
 
             if (pointee.getAs<clang::ParenTypeLoc>()) {
                 // Function pointers or other parenthesized types are not
                 // concerned (ex: `int (*ptr)[10];`)
-                goto childOK;
+                break;
             }
             // Unless it's a double pointer, always put a space between the
             // pointer and the pointee
@@ -63,9 +63,8 @@ void coconut::RuleV3::runCheck(
                 report.reportViolation(*this, compiler, star);
                 return;
             }
-        }
+        } while (0);
 
-    childOK:
         auto list = context.getParents(*ptr);
         if (list.empty()) {
             // should not happen
