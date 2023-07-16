@@ -17,3 +17,12 @@ enum myEnum {
     hello,
     world
 };
+
+struct object {
+    int a;
+};
+
+union myUnion {
+    int a;
+    char b;
+};
