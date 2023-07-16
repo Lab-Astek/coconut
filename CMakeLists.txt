@@ -35,6 +35,7 @@ set(SOURCES
 
     sources/rules/RuleL1.cpp
     sources/rules/RuleL5.cpp
+    sources/rules/RuleL6.cpp
 
     sources/rules/RuleC2.cpp
     sources/rules/RuleC3.cpp
