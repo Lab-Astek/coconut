@@ -60,7 +60,7 @@ void coconut::RuleL6::runCheck(
                  ++declIt) {
                 auto varDecl = llvm::dyn_cast<clang::VarDecl>(*declIt);
                 if (!varDecl)
-                    break;
+                    continue; // Ignore struct declarations
                 separatingLine
                     = sm.getExpansionLineNumber(varDecl->getEndLoc()) + 1;
             }
