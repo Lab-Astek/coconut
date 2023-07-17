@@ -55,9 +55,11 @@ bear -- make re >/dev/null 2>&1
 
 cd - >/dev/null
 
-REPORT="$REPORTS_DIR"/coding-style-reports.log
-
-rm -f "$REPORT"
+REPORT="$REPORTS_DIR"/coding-style-reports.log.unsorted
 
 cat "$COPY_DEST/coding-style-files.log" \
     | xargs -0 -n 1 coconut -p "$COPY_DEST" -o "$REPORT"
+
+sort -V "$REPORT" > "$REPORTS_DIR"/coding-style-reports.log
+
+rm -f "$REPORT"
