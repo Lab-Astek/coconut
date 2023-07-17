@@ -26,3 +26,7 @@ union myUnion {
     int a;
     char b;
 };
+
+typedef struct {
+    int a;
+} object_t;

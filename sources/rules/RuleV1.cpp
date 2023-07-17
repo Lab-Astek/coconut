@@ -13,32 +13,36 @@
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Frontend/CompilerInstance.h>
-#include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/PreprocessingRecord.h>
+#include <clang/Lex/Preprocessor.h>
 
 #include <regex>
 
 using namespace clang::ast_matchers;
 
 coconut::RuleV1::RuleV1()
-    : Rule("MINOR:C-V1", "variable name should respect the snake_case convention")
+    : Rule(
+        "MINOR:C-V1", "variable name should respect the snake_case convention"
+    )
 {
 }
 
-void coconut::RuleV1::runCheck(ReportHandler &report,
-    clang::CompilerInstance &compiler, clang::ASTContext &context) const
+void coconut::RuleV1::runCheck(
+    ReportHandler &report, clang::CompilerInstance &compiler,
+    clang::ASTContext &context
+) const
 {
     MatchFinder finder;
 
-    // First callback that will be call to handle "basic" variables and tags that
-    // doesn't respect the snake_case convention, exemple:
+    // First callback that will be call to handle "basic" variables and tags
+    // that doesn't respect the snake_case convention, exemple:
     //      enum object {
     //          KNIFE,
     //          HAMMER
     //      };
     //
     // so, we'll check the tag "object"
-    LambdaCallback variables([&] (MatchFinder::MatchResult const &result) {
+    LambdaCallback variables([&](MatchFinder::MatchResult const &result) {
         auto var = result.Nodes.getNodeAs<clang::NamedDecl>("variable");
 
         if (!var)
@@ -52,33 +56,41 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
             return;
         }
 
+        if (var->getName().empty()) {
+            // Unnamed structs have no name, so we have nothing to check
+            // (ex: struct { int a; } b;)
+            return;
+        }
+
         std::regex regexToCheck(coconut::SNAKECASE_REGEX);
 
         if (not std::regex_match(var->getName().str(), regexToCheck))
             report.reportViolation(*this, compiler, loc);
     });
 
+    // Then this callback will be call to handle enum and const global variables
+    // that need to be in upper snake_case.
+    LambdaCallback enumGlobalVariables(
+        [&](MatchFinder::MatchResult const &result) {
+            auto var = result.Nodes.getNodeAs<clang::NamedDecl>(
+                "enum_global_variable"
+            );
 
-    // Then this callback will be call to handle enum and const global variables that need to be
-    // in upper snake_case.
-    LambdaCallback enumGlobalVariables([&] (MatchFinder::MatchResult const &result) {
-        auto var = result.Nodes.getNodeAs<clang::NamedDecl>("enum_global_variable");
+            if (!var)
+                return;
 
-        if (!var)
-            return;
+            auto loc = var->getLocation();
 
-        auto loc = var->getLocation();
+            std::regex regexToCheck(coconut::GLOBAL_VAR_SNAKECASE_REGEX);
 
-        std::regex regexToCheck(coconut::GLOBAL_VAR_SNAKECASE_REGEX);
-
-        if (not std::regex_match(var->getName().str(), regexToCheck))
-            report.reportViolation(*this, compiler, loc);
-    });
-
+            if (not std::regex_match(var->getName().str(), regexToCheck))
+                report.reportViolation(*this, compiler, loc);
+        }
+    );
 
     // Here, typedefs will be checked, they need to be in snake_case and to
     // end with _t suffix
-    LambdaCallback typedefs([&] (MatchFinder::MatchResult const &result) {
+    LambdaCallback typedefs([&](MatchFinder::MatchResult const &result) {
         auto my_typedef = result.Nodes.getNodeAs<clang::TypedefDecl>("typedef");
 
         if (!my_typedef)
@@ -88,9 +100,7 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
         if (not std::regex_match(my_typedef->getNameAsString(), regexToCheck))
             report.reportViolation(*this, compiler, my_typedef->getLocation());
-
     });
-
 
     // Variables matcher:
 
@@ -99,12 +109,9 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
             // we don't want to catch variable declared in headers
             isExpansionInMainFile(),
             // also no const global
-            unless(
-                allOf(
-                    hasParent(translationUnitDecl()),
-                    hasType(isConstQualified())
-                )
-            )
+            unless(allOf(
+                hasParent(translationUnitDecl()), hasType(isConstQualified())
+            ))
         )
             .bind("variable"),
         &variables
@@ -127,31 +134,20 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
     // Tags declaration matcher:
 
     finder.addMatcher(
-        tagDecl(
-            isExpansionInMainFile()
-        )
-            .bind("variable"),
-        &variables
+        tagDecl(isExpansionInMainFile()).bind("variable"), &variables
     );
 
     // Enums enumerators matcher:
 
     finder.addMatcher(
-        enumConstantDecl(
-            isExpansionInMainFile()
-        )
-            .bind("enum_global_variable"),
+        enumConstantDecl(isExpansionInMainFile()).bind("enum_global_variable"),
         &enumGlobalVariables
     );
 
     // Typedefs matcher:
 
     finder.addMatcher(
-        typedefDecl(
-            isExpansionInMainFile()
-        )
-            .bind("typedef"),
-        &typedefs
+        typedefDecl(isExpansionInMainFile()).bind("typedef"), &typedefs
     );
 
     // At the end, we'll check that all macros const global are also
@@ -159,9 +155,11 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
 
     std::regex regexToCheck(coconut::GLOBAL_VAR_SNAKECASE_REGEX);
 
-    for (clang::PreprocessedEntity *entity: *(compiler.getPreprocessor().getPreprocessingRecord())) {
+    for (clang::PreprocessedEntity *entity :
+         *(compiler.getPreprocessor().getPreprocessingRecord())) {
 
-        clang::MacroDefinitionRecord *macro = llvm::dyn_cast<clang::MacroDefinitionRecord>(entity);
+        clang::MacroDefinitionRecord *macro
+            = llvm::dyn_cast<clang::MacroDefinitionRecord>(entity);
 
         if (macro == nullptr)
             continue;
@@ -172,7 +170,9 @@ void coconut::RuleV1::runCheck(ReportHandler &report,
         if (not sourceManager.isWrittenInMainFile(loc))
             continue;
 
-        if (not std::regex_match(macro->getName()->getName().str(), regexToCheck))
+        if (not std::regex_match(
+                macro->getName()->getName().str(), regexToCheck
+            ))
             report.reportViolation(*this, compiler, loc);
     }
 
