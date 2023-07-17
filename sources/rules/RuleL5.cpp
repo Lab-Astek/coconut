@@ -68,7 +68,7 @@ void coconut::RuleL5::runCheck(
                  ++declIt) {
                 auto varDecl = llvm::dyn_cast<clang::VarDecl>(*declIt);
                 if (!varDecl)
-                    return;
+                    continue; // struct declarations are OK
 
                 ok_vars.insert(varDecl);
             }
