@@ -35,12 +35,15 @@ if [ ! -d "$COPY_DEST" ]; then
     exit 84
 fi
 
+# In build directory
 cd "$COPY_DEST"
 
+# Copy from delivery directory to build directory
 if [ "$DELIVERY_DIR" != "$COPY_DEST" ]; then
     cp -a "$DELIVERY_DIR"/. .
 fi
 
+# Back to root directory
 cd - >/dev/null
 
 find "$COPY_DEST" \
@@ -49,14 +52,25 @@ find "$COPY_DEST" \
      -o \( -name '*.c' -o -name '*.h' \) -print0 \
      > "$COPY_DEST/coding-style-files.log"
 
+# Back to build directory
 cd - >/dev/null
 
-if [ -d rush-1-1 ]; then
-    bear -- gcc rush-1-*/*.c >/dev/null 2>&1
-else
+# If the student has compile flags, ignore them
+rm -f compile_commands.json
+rm -f compile_flags.txt
+
+# If Makefile exists
+if [ -f Makefile || -f makefile || -f GNUmakefile ]; then
     bear -- make re >/dev/null 2>&1
+else
+    # Start of C pool
+    if [ -d lib/my ]; then
+        bear -- lib/my/build.sh >/dev/null 2>&1
+    fi
+    bear -- gcc *.c -Iinclude >/dev/null 2>&1
 fi
 
+# Back to root directory
 cd - >/dev/null
 
 REPORT="$REPORTS_DIR"/coding-style-reports.log.unsorted
