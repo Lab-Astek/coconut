@@ -27,7 +27,7 @@ void coconut::RuleG5::runCheck(ReportHandler &report,
 {
     clang::SourceManager &sourceManager = compiler.getSourceManager();
 
-    for (clang::PreprocessedEntity *entity: *(compiler.getPreprocessor().getPreprocessingRecord())) {
+    for (clang::PreprocessedEntity *entity: *compiler.getPreprocessor().getPreprocessingRecord()) {
 
         clang::InclusionDirective *inclusion = llvm::dyn_cast<clang::InclusionDirective>(entity);
 
