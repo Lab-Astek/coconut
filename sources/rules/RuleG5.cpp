@@ -41,7 +41,7 @@ void coconut::RuleG5::runCheck(ReportHandler &report,
 
         auto const &fileName = inclusion->getFileName();
 
-        if (not fileName.ends_with(".h"))
+        if (not fileName.endswith(".h"))
             report.reportViolation(*this, compiler, loc);
     }
 
