@@ -35,22 +35,29 @@ if [ ! -d "$COPY_DEST" ]; then
     exit 84
 fi
 
-pushd "$COPY_DEST" > /dev/null || exit 84
+cd "$COPY_DEST"
 
 if [ "$DELIVERY_DIR" != "$COPY_DEST" ]; then
     cp -a "$DELIVERY_DIR"/. .
 fi
 
-bear -- make re >/dev/null 2>&1
-
-popd >/dev/null
-
-REPORT="$REPORTS_DIR"/coding-style-reports.log
-
-rm -f "$REPORT"
+cd - >/dev/null
 
 find "$COPY_DEST" \
      \( -path "$COPY_DEST"/bonus \
      -o -path "$COPY_DEST"/tests \) -prune \
      -o \( -name '*.c' -o -name '*.h' \) -print0 \
+     > "$COPY_DEST/coding-style-files.log"
+
+cd - >/dev/null
+
+bear -- make re >/dev/null 2>&1
+
+cd - >/dev/null
+
+REPORT="$REPORTS_DIR"/coding-style-reports.log
+
+rm -f "$REPORT"
+
+cat "$COPY_DEST/coding-style-files.log" \
     | xargs -0 -n 1 coconut -p "$COPY_DEST" -o "$REPORT"
