@@ -46,15 +46,18 @@ void coconut::RuleL3::runCheck(
         unsigned int opLine = sm.getExpansionLineNumber(loc);
         unsigned int rhsLine = sm.getExpansionLineNumber(rhsLoc);
 
+        bool lhsDiffLine = lhsLine != opLine || lhsLoc.isMacroID();
+        bool rhsDiffLine = rhsLine != opLine || rhsLoc.isMacroID();
+
         int opLen = op->getOpcodeStr().size();
         char const *before = sm.getCharacterData(loc) - 1;
         char const *after = sm.getCharacterData(loc) + opLen;
-        bool lhsOk
-            = lhsLine != opLine || (before[0] == ' ' && before[-1] != ' ');
+        bool lhsOk = lhsDiffLine || (before[0] == ' ' && before[-1] != ' ');
         if (not lhsOk) {
             report.reportViolation(*this, compiler, loc);
+            return;
         }
-        bool rhsOk = rhsLine != opLine || (after[0] == ' ' && after[1] != ' ');
+        bool rhsOk = rhsDiffLine || (after[0] == ' ' && after[1] != ' ');
         if (not rhsOk) {
             report.reportViolation(*this, compiler, loc);
         }
