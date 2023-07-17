@@ -15,8 +15,6 @@
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/PreprocessingRecord.h>
 
-#include <iostream>
-
 using namespace clang::ast_matchers;
 
 coconut::RuleG5::RuleG5()
