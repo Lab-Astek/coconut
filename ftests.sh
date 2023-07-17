@@ -15,7 +15,8 @@ echo "Built image: $IMAGE"
 
 error=0
 
-for dir in ./tests/*.t; do
+for expfile in ./tests/*.t/"$EXPECT_FILE"; do
+    dir=$(dirname "$expfile")
     printf "\033[33mRunning test $dir\033[0m\n"
     dirname=$(realpath "$dir")
     docker run --rm -i \
