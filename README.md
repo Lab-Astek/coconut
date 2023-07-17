@@ -46,7 +46,7 @@ If you want to contribute to this repository, please read the guidelines from th
 | C-G2            | ❌🍌 Planned                                             |
 | C-G3            | ❌🍌 Planned                                             |
 | C-G4            | ✅                                                       |
-| C-G5            | ❌🍌 Planned                                             |
+| C-G5            | ✅                                                       |
 | C-G6            | 🍌                                                       |
 | C-G7            | 🍌                                                       |
 | C-G8            | 🍌                                                       |
