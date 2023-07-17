@@ -40,9 +40,8 @@ void coconut::RuleG5::runCheck(ReportHandler &report,
             continue;
 
         auto const &fileName = inclusion->getFileName();
-        auto fileExtension = fileName.slice(fileName.find('.'), fileName.size()).str();
 
-        if (fileExtension.compare(".h") != 0)
+        if (not fileName.ends_with(".h"))
             report.reportViolation(*this, compiler, loc);
     }
 
