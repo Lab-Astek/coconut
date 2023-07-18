@@ -6,6 +6,7 @@
 */
 
 #include <stdbool.h>
+#include <iso646.h>
 
 int make_calculations(int a, bool b, int c)
 {
@@ -31,6 +32,11 @@ int increments(int a)
     --a;
     -- a;
     return a;
+}
+
+bool macro_operators(bool a, bool b)
+{
+    return (not a and b) or (compl (a << 3) or b);
 }
 
 int main(void)
