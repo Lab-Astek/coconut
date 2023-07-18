@@ -96,6 +96,7 @@ void coconut::RuleL3::runCheck(
     clang::ASTContext &context
 ) const
 {
+    clang::SourceManager &sm = compiler.getSourceManager();
     MatchFinder finder;
     // Handles binary operators
     LambdaCallback binary([&](MatchFinder::MatchResult const &result) {
@@ -105,7 +106,6 @@ void coconut::RuleL3::runCheck(
         clang::SourceLocation loc = op->getOperatorLoc();
         if (loc.isMacroID())
             return;
-        clang::SourceManager &sm = compiler.getSourceManager();
 
         int opLen = op->getOpcodeStr().size();
         if (not checkCorrectSpaceBefore(
@@ -123,7 +123,6 @@ void coconut::RuleL3::runCheck(
         clang::SourceLocation loc = op->getOperatorLoc();
         if (loc.isMacroID())
             return;
-        clang::SourceManager &sm = compiler.getSourceManager();
 
         bool ok;
         if (op->isPostfix()) {
@@ -144,7 +143,6 @@ void coconut::RuleL3::runCheck(
         auto call = result.Nodes.getNodeAs<clang::CallExpr>("call");
         if (!call)
             return;
-        clang::SourceManager &sm = compiler.getSourceManager();
 
         clang::Expr const *last = call->getCallee();
         if (call->getNumArgs() > 0)
@@ -185,10 +183,9 @@ void coconut::RuleL3::runCheck(
         clang::SourceLocation loc = op->getBeginLoc();
         if (loc.isMacroID())
             return;
-        clang::SourceManager &sm = compiler.getSourceManager();
 
         int opLen
-            = clang::Lexer::MeasureTokenLength(loc, sm, clang::LangOptions());
+            = clang::Lexer::MeasureTokenLength(loc, sm, compiler.getLangOpts());
         bool expectSpace = true;
         if (auto ret = llvm::dyn_cast<clang::ReturnStmt>(op)) {
             if (ret->getRetValue() == nullptr) {
@@ -196,6 +193,21 @@ void coconut::RuleL3::runCheck(
             }
         }
         if (not checkCorrectSpaceAfter(sm, loc, op, opLen, expectSpace)) {
+            report.reportViolation(*this, compiler, loc);
+        }
+    });
+    // Handles the do-while loops' while keyword
+    LambdaCallback doKeyword([&](MatchFinder::MatchResult const &result) {
+        auto op = result.Nodes.getNodeAs<clang::DoStmt>("stmt");
+        if (!op)
+            return;
+        clang::SourceLocation loc = op->getWhileLoc();
+        if (loc.isMacroID())
+            return;
+
+        int opLen
+            = clang::Lexer::MeasureTokenLength(loc, sm, compiler.getLangOpts());
+        if (not checkCorrectSpaceAfter(sm, loc, op->getCond(), opLen, true)) {
             report.reportViolation(*this, compiler, loc);
         }
     });
@@ -236,5 +248,6 @@ void coconut::RuleL3::runCheck(
         )),
         &keyword
     );
+    finder.addMatcher(doStmt(isExpansionInMainFile()).bind("stmt"), &doKeyword);
     finder.matchAST(context);
 }
