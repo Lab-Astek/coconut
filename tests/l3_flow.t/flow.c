@@ -30,7 +30,7 @@ int flower(void)
             break;
         }
     }
-    do {
+    do{
         return 3;
     } while(0);
 }

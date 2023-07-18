@@ -10,6 +10,7 @@
 
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/Expr.h>
+#include <clang/AST/Stmt.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/Basic/FileManager.h>
@@ -18,6 +19,7 @@
 #include <clang/Lex/Lexer.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/Casting.h>
 
 using namespace clang::ast_matchers;
 
@@ -27,7 +29,7 @@ coconut::RuleL3::RuleL3()
 }
 
 static bool checkCorrectSpaceBefore(
-    clang::SourceManager &sm, clang::SourceLocation loc, clang::Expr const *lhs,
+    clang::SourceManager &sm, clang::SourceLocation loc, clang::Stmt const *lhs,
     bool expectSpace
 )
 {
@@ -48,7 +50,7 @@ static bool checkCorrectSpaceBefore(
 }
 
 static bool checkCorrectSpaceAfter(
-    clang::SourceManager &sm, clang::SourceLocation loc, clang::Expr const *rhs,
+    clang::SourceManager &sm, clang::SourceLocation loc, clang::Stmt const *rhs,
     size_t opLen, bool expectSpace
 )
 {
@@ -175,6 +177,28 @@ void coconut::RuleL3::runCheck(
             }
         }
     });
+    // Handles statements starting with a keyword
+    LambdaCallback keyword([&](MatchFinder::MatchResult const &result) {
+        auto op = result.Nodes.getNodeAs<clang::Stmt>("stmt");
+        if (!op)
+            return;
+        clang::SourceLocation loc = op->getBeginLoc();
+        if (loc.isMacroID())
+            return;
+        clang::SourceManager &sm = compiler.getSourceManager();
+
+        int opLen
+            = clang::Lexer::MeasureTokenLength(loc, sm, clang::LangOptions());
+        bool expectSpace = true;
+        if (auto ret = llvm::dyn_cast<clang::ReturnStmt>(op)) {
+            if (ret->getRetValue() == nullptr) {
+                expectSpace = false;
+            }
+        }
+        if (not checkCorrectSpaceAfter(sm, loc, op, opLen, expectSpace)) {
+            report.reportViolation(*this, compiler, loc);
+        }
+    });
 
     finder.addMatcher(
         binaryOperator(
@@ -199,6 +223,18 @@ void coconut::RuleL3::runCheck(
         )
             .bind("call"),
         &call
+    );
+    finder.addMatcher(
+        stmt(anyOf(
+            ifStmt(isExpansionInMainFile()).bind("stmt"),
+            whileStmt(isExpansionInMainFile()).bind("stmt"),
+            forStmt(isExpansionInMainFile()).bind("stmt"),
+            returnStmt(isExpansionInMainFile()).bind("stmt"),
+            switchStmt(isExpansionInMainFile()).bind("stmt"),
+            caseStmt(isExpansionInMainFile()).bind("stmt"),
+            doStmt(isExpansionInMainFile()).bind("stmt")
+        )),
+        &keyword
     );
     finder.matchAST(context);
 }
