@@ -23,6 +23,33 @@ coconut::RuleL3::RuleL3()
 {
 }
 
+static bool checkCorrectSpaceBefore(
+    clang::SourceManager &sm, clang::SourceLocation loc, clang::Expr const *lhs
+)
+{
+    clang::SourceLocation lhsLoc = lhs->getEndLoc();
+    unsigned int lhsLine = sm.getExpansionLineNumber(lhsLoc);
+    unsigned int opLine = sm.getExpansionLineNumber(loc);
+    bool lhsDiffLine = lhsLine != opLine || lhsLoc.isMacroID();
+    char const *before = sm.getCharacterData(loc) - 1;
+
+    return lhsDiffLine || (before[0] == ' ' && before[-1] != ' ');
+}
+
+static bool checkCorrectSpaceAfter(
+    clang::SourceManager &sm, clang::SourceLocation loc, clang::Expr const *rhs,
+    size_t opLen
+)
+{
+    clang::SourceLocation rhsLoc = rhs->getBeginLoc();
+    unsigned int rhsLine = sm.getExpansionLineNumber(rhsLoc);
+    unsigned int opLine = sm.getExpansionLineNumber(loc);
+    bool rhsDiffLine = rhsLine != opLine || rhsLoc.isMacroID();
+    char const *after = sm.getCharacterData(loc) + opLen;
+
+    return rhsDiffLine || (after[0] == ' ' && after[1] != ' ');
+}
+
 void coconut::RuleL3::runCheck(
     ReportHandler &report, clang::CompilerInstance &compiler,
     clang::ASTContext &context
@@ -39,26 +66,9 @@ void coconut::RuleL3::runCheck(
             return;
         clang::SourceManager &sm = compiler.getSourceManager();
 
-        clang::SourceLocation lhsLoc = op->getLHS()->getEndLoc();
-        clang::SourceLocation rhsLoc = op->getRHS()->getBeginLoc();
-
-        unsigned int lhsLine = sm.getExpansionLineNumber(lhsLoc);
-        unsigned int opLine = sm.getExpansionLineNumber(loc);
-        unsigned int rhsLine = sm.getExpansionLineNumber(rhsLoc);
-
-        bool lhsDiffLine = lhsLine != opLine || lhsLoc.isMacroID();
-        bool rhsDiffLine = rhsLine != opLine || rhsLoc.isMacroID();
-
         int opLen = op->getOpcodeStr().size();
-        char const *before = sm.getCharacterData(loc) - 1;
-        char const *after = sm.getCharacterData(loc) + opLen;
-        bool lhsOk = lhsDiffLine || (before[0] == ' ' && before[-1] != ' ');
-        if (not lhsOk) {
-            report.reportViolation(*this, compiler, loc);
-            return;
-        }
-        bool rhsOk = rhsDiffLine || (after[0] == ' ' && after[1] != ' ');
-        if (not rhsOk) {
+        if (not checkCorrectSpaceBefore(sm, loc, op->getLHS()) ||
+            not checkCorrectSpaceAfter(sm, loc, op->getRHS(), opLen)) {
             report.reportViolation(*this, compiler, loc);
         }
     });
