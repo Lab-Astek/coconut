@@ -28,6 +28,12 @@ coconut::RuleL3::RuleL3()
 {
 }
 
+/// Checks if there is a space or not before an operator
+/// \param sm SourceManager
+/// \param loc Location of the operator
+/// \param lhs Left hand side of the operator
+/// \param expectSpace True if there should be a space
+/// \return True if the space is correct
 static bool checkCorrectSpaceBefore(
     clang::SourceManager &sm, clang::SourceLocation loc, clang::Stmt const *lhs,
     bool expectSpace
@@ -49,6 +55,13 @@ static bool checkCorrectSpaceBefore(
         return (before[0] != ' ');
 }
 
+/// Checks if there is a space or not after an operator
+/// \param sm SourceManager
+/// \param loc Location of the operator
+/// \param rhs Right hand side of the operator
+/// \param opLen Length of the operator
+/// \param expectSpace True if there should be a space
+/// \return True if the space is correct
 static bool checkCorrectSpaceAfter(
     clang::SourceManager &sm, clang::SourceLocation loc, clang::Stmt const *rhs,
     size_t opLen, bool expectSpace
@@ -70,6 +83,13 @@ static bool checkCorrectSpaceAfter(
         return (after[0] != ' ');
 }
 
+/// Checks if there is the expected string between two statements
+/// \param compiler CompilerInstance
+/// \param sm SourceManager
+/// \param lhs Left hand side of the operator
+/// \param rhsLoc Location of the right hand side
+/// \param expected Expected string
+/// \return True if the string is correct
 static bool checkCorrectSeparation(
     clang::CompilerInstance &compiler, clang::SourceManager &sm,
     clang::Stmt const *lhs, clang::SourceLocation rhsLoc, char const *expected
@@ -108,6 +128,7 @@ void coconut::RuleL3::runCheck(
             return;
 
         int opLen = op->getOpcodeStr().size();
+        // Check left and right
         if (not checkCorrectSpaceBefore(
                 sm, loc, op->getLHS(), not op->isCommaOp()
             )
@@ -125,6 +146,7 @@ void coconut::RuleL3::runCheck(
             return;
 
         bool ok;
+        // Check on the correct side depending on the fixity
         if (op->isPostfix()) {
             ok = checkCorrectSpaceBefore(sm, loc, op->getSubExpr(), false);
         } else {
@@ -147,6 +169,7 @@ void coconut::RuleL3::runCheck(
         clang::Expr const *last = call->getCallee();
         if (call->getNumArgs() > 0)
             last = call->getArg(call->getNumArgs() - 1);
+        // Check before the right parenthesis
         if (not checkCorrectSpaceBefore(
                 sm, call->getRParenLoc(), last, false
             )) {
@@ -157,6 +180,7 @@ void coconut::RuleL3::runCheck(
         clang::SourceLocation first = call->getRParenLoc();
         if (call->getNumArgs() > 0)
             first = call->getArg(0)->getBeginLoc();
+        // Check both sides of the left parenthesis
         if (not checkCorrectSeparation(
                 compiler, sm, call->getCallee(), first, "("
             )) {
@@ -167,6 +191,7 @@ void coconut::RuleL3::runCheck(
         auto it
             = llvm::zip(call->arguments(), llvm::drop_begin(call->arguments()));
 
+        // Check commas between arguments
         for (auto const &pair : it) {
             auto const &arg = std::get<0>(pair);
             auto const &next = std::get<1>(pair);
@@ -191,9 +216,11 @@ void coconut::RuleL3::runCheck(
         bool expectSpace = true;
         if (auto ret = llvm::dyn_cast<clang::ReturnStmt>(op)) {
             if (ret->getRetValue() == nullptr) {
+                // No space after empty return: `return;` not `return ;`
                 expectSpace = false;
             }
         }
+        // Check there is a space after the keyword
         if (not checkCorrectSpaceAfter(sm, loc, op, opLen, expectSpace)) {
             report.reportViolation(*this, compiler, loc);
         }
@@ -209,6 +236,7 @@ void coconut::RuleL3::runCheck(
 
         int opLen
             = clang::Lexer::MeasureTokenLength(loc, sm, compiler.getLangOpts());
+        // Check there is a space after the while keyword
         if (not checkCorrectSpaceAfter(sm, loc, op->getCond(), opLen, true)) {
             report.reportViolation(*this, compiler, loc);
         }
@@ -222,6 +250,7 @@ void coconut::RuleL3::runCheck(
         if (loc.isMacroID())
             return;
 
+        // Check both sides of the question mark
         if (not checkCorrectSpaceBefore(sm, loc, op->getLHS(), true)
             || not checkCorrectSpaceAfter(sm, loc, op->getRHS(), 1, true)) {
             report.reportViolation(*this, compiler, loc);
@@ -229,6 +258,7 @@ void coconut::RuleL3::runCheck(
         }
 
         loc = op->getColonLoc();
+        // Check both sides of the colon
         if (not checkCorrectSpaceBefore(sm, loc, op->getLHS(), true)
             || not checkCorrectSpaceAfter(sm, loc, op->getRHS(), 1, true)) {
             report.reportViolation(*this, compiler, loc);
@@ -250,6 +280,7 @@ void coconut::RuleL3::runCheck(
             return;
         }
 
+        // Check space after the left parenthesis
         if (not checkCorrectSpaceAfter(
                 sm, stmt->getLParenLoc(), init, 1, false
             )) {
@@ -257,6 +288,9 @@ void coconut::RuleL3::runCheck(
             return;
         }
 
+        // Check between init and cond
+        // Seems like it's " " or "; " depending on the statements...
+        // Therefore both are considered correct
         if (not checkCorrectSeparation(
                 compiler, sm, init, cond->getBeginLoc(), " "
             )
@@ -266,6 +300,7 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, init->getEndLoc());
             return;
         }
+        // Check between cond and inc
         if (not checkCorrectSeparation(
                 compiler, sm, cond, inc->getBeginLoc(), " "
             )
@@ -275,6 +310,7 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, cond->getEndLoc());
             return;
         }
+        // Check space before the right parenthesis
         if (not checkCorrectSpaceBefore(sm, stmt->getRParenLoc(), inc, false)) {
             report.reportViolation(*this, compiler, stmt->getRParenLoc());
         }
