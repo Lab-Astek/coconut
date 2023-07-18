@@ -7,6 +7,8 @@
 
 NAME	= binop
 
+CFLAGS	=	-Wno-unused-value
+
 all: $(NAME)
 
 clean:

@@ -25,7 +25,7 @@ coconut::RuleL3::RuleL3()
 
 static bool checkCorrectSpaceBefore(
     clang::SourceManager &sm, clang::SourceLocation loc, clang::Expr const *lhs,
-    bool expectSpace = true
+    bool expectSpace
 )
 {
     clang::SourceLocation lhsLoc = lhs->getEndLoc();
@@ -46,7 +46,7 @@ static bool checkCorrectSpaceBefore(
 
 static bool checkCorrectSpaceAfter(
     clang::SourceManager &sm, clang::SourceLocation loc, clang::Expr const *rhs,
-    size_t opLen, bool expectSpace = true
+    size_t opLen, bool expectSpace
 )
 {
     clang::SourceLocation rhsLoc = rhs->getBeginLoc();
@@ -82,8 +82,10 @@ void coconut::RuleL3::runCheck(
         clang::SourceManager &sm = compiler.getSourceManager();
 
         int opLen = op->getOpcodeStr().size();
-        if (not checkCorrectSpaceBefore(sm, loc, op->getLHS())
-            || not checkCorrectSpaceAfter(sm, loc, op->getRHS(), opLen)) {
+        if (not checkCorrectSpaceBefore(
+                sm, loc, op->getLHS(), not op->isCommaOp()
+            )
+            || not checkCorrectSpaceAfter(sm, loc, op->getRHS(), opLen, true)) {
             report.reportViolation(*this, compiler, loc);
         }
     });
