@@ -6,6 +6,8 @@ Currently, only **functional tests** are supported. They check the entire set of
 
 These tests can be launched using the `ftests.sh` script at the root of the repository.
 
+By default, the tests will be run under docker. If you want to run them locally instead, use `./ftests --local`. Note that it will need your password for the install step, and may put unwanted files in your repository.
+
 ## Functional tests
 
 To create a functional test, create a new directory here, with its name ending in `.t`. By convention, write the directory name in snake case, prefixed with the rule identifier you are especially testing.
