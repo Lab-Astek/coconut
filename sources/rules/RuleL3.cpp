@@ -113,6 +113,23 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, loc);
         }
     });
+    // Handles function calls
+    LambdaCallback call([&](MatchFinder::MatchResult const &result) {
+        auto call = result.Nodes.getNodeAs<clang::CallExpr>("call");
+        if (!call)
+            return;
+        clang::SourceManager &sm = compiler.getSourceManager();
+
+        clang::Expr const *last = call->getCallee();
+        if (call->getNumArgs() > 0)
+            last = call->getArg(call->getNumArgs() - 1);
+        if (not checkCorrectSpaceBefore(
+                sm, call->getRParenLoc(), last, false
+            )) {
+            report.reportViolation(*this, compiler, call->getRParenLoc());
+            return;
+        }
+    });
 
     finder.addMatcher(
         binaryOperator(
@@ -129,6 +146,14 @@ void coconut::RuleL3::runCheck(
         )
             .bind("op"),
         &unary
+    );
+    finder.addMatcher(
+        callExpr(
+            // As usual, we don't want to check header files
+            isExpansionInMainFile()
+        )
+            .bind("call"),
+        &call
     );
     finder.matchAST(context);
 }
