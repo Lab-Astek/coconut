@@ -12,6 +12,8 @@ It is mainly intended to work under Docker, so you can simply use `docker build 
 
 Once you have the docker image, you can replace the docker image from [coding-style.sh](https://github.com/Epitech/coding-style-checker) with the one you just built.
 
+You can also replace the docker image from the script to `$(cd /your/build/dir; docker build -q .)` so it automatically updates as you make modifications to coconut.
+
 ### Installing locally
 
 If you want to install it locally instead, here's how:
@@ -25,8 +27,12 @@ Then, to build locally:
 ```sh
 $ cmake -Bbuild
 $ cmake --build build -j
-$ sudo install build/coconut /usr/bin
+$ sudo cmake --install build
 ```
+
+The coconut binary will be placed in the /usr/bin directory by the install command. Note that in order to work, the coconut binary **MUST** be in the same directory as the clang binary.
+
+> **Note**: Running `./ftests.sh --local` will run these install steps automatically.
 
 You then just have to invoke the `check.sh` script to run Coconut. You can also put the `check.sh` script in your PATH to make it easier.
 
@@ -82,5 +88,4 @@ If you want to contribute to this repository, please read the guidelines from th
 
 - 🍌 = Handled by Banana
 - ✅ = Handled by Coconut
-- 🚧 = Work in Progress
 - ❌ = Not supported
