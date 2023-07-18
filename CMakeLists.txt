@@ -54,3 +54,5 @@ include_directories(
 add_compile_options(-Wall -Wextra)
 
 add_executable(coconut ${SOURCES})
+
+install(TARGETS coconut DESTINATION /usr/bin)
