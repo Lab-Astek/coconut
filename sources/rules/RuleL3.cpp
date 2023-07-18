@@ -16,6 +16,7 @@
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Lex/Lexer.h>
+#include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/StringRef.h>
 
 using namespace clang::ast_matchers;
@@ -159,6 +160,19 @@ void coconut::RuleL3::runCheck(
         if (not checkCorrectSeparation(sm, call->getCallee(), first, "(")) {
             report.reportViolation(*this, compiler, first);
             return;
+        }
+
+        auto it
+            = llvm::zip(call->arguments(), llvm::drop_begin(call->arguments()));
+
+        for (auto const &pair : it) {
+            auto const &arg = std::get<0>(pair);
+            auto const &next = std::get<1>(pair);
+            if (not checkCorrectSeparation(
+                    sm, arg, next->getBeginLoc(), ", "
+                )) {
+                report.reportViolation(*this, compiler, next->getBeginLoc());
+            }
         }
     });
 
