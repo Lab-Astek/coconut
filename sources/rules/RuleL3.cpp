@@ -13,7 +13,9 @@
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/Basic/FileManager.h>
+#include <clang/Basic/SourceLocation.h>
 #include <clang/Frontend/CompilerInstance.h>
+#include <clang/Lex/Lexer.h>
 #include <llvm/ADT/StringRef.h>
 
 using namespace clang::ast_matchers;
@@ -63,6 +65,27 @@ static bool checkCorrectSpaceAfter(
         return (after[0] == ' ' && after[1] != ' ');
     else
         return (after[0] != ' ');
+}
+
+static bool checkCorrectSeparation(
+    clang::SourceManager &sm, clang::Expr const *lhs,
+    clang::SourceLocation rhsLoc, char const *expected
+)
+{
+    clang::SourceLocation lhsLoc = lhs->getEndLoc();
+    unsigned int lhsLine = sm.getExpansionLineNumber(lhsLoc);
+    unsigned int rhsLine = sm.getExpansionLineNumber(rhsLoc);
+
+    if (lhsLine != rhsLine || lhsLoc.isMacroID() || rhsLoc.isMacroID())
+        return true;
+
+    lhsLoc = clang::Lexer::getLocForEndOfToken(
+        lhsLoc, 0, sm, clang::LangOptions()
+    );
+    char const *start = sm.getCharacterData(lhsLoc);
+    char const *end = sm.getCharacterData(rhsLoc);
+
+    return llvm::StringRef(start, end - start) == expected;
 }
 
 void coconut::RuleL3::runCheck(
@@ -127,6 +150,14 @@ void coconut::RuleL3::runCheck(
                 sm, call->getRParenLoc(), last, false
             )) {
             report.reportViolation(*this, compiler, call->getRParenLoc());
+            return;
+        }
+
+        clang::SourceLocation first = call->getRParenLoc();
+        if (call->getNumArgs() > 0)
+            first = call->getArg(0)->getBeginLoc();
+        if (not checkCorrectSeparation(sm, call->getCallee(), first, "(")) {
+            report.reportViolation(*this, compiler, first);
             return;
         }
     });
