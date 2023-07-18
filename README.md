@@ -20,7 +20,7 @@ If you want to install it locally instead, here's how:
 
 First, make sure you have the dependencies installed. You must have CMake, Bear, and a development version of Clang.
 
-On Fedora, you can run `sudo dnf install bear clang-devel`.
+On Fedora, you can run `sudo dnf install bear clang-devel llvm-devel`.
 
 Then, to build locally:
 
