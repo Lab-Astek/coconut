@@ -71,8 +71,8 @@ static bool checkCorrectSpaceAfter(
 }
 
 static bool checkCorrectSeparation(
-    clang::SourceManager &sm, clang::Expr const *lhs,
-    clang::SourceLocation rhsLoc, char const *expected
+    clang::CompilerInstance &compiler, clang::SourceManager &sm,
+    clang::Stmt const *lhs, clang::SourceLocation rhsLoc, char const *expected
 )
 {
     clang::SourceLocation lhsLoc = lhs->getEndLoc();
@@ -83,7 +83,7 @@ static bool checkCorrectSeparation(
         return true;
 
     lhsLoc = clang::Lexer::getLocForEndOfToken(
-        lhsLoc, 0, sm, clang::LangOptions()
+        lhsLoc, 0, sm, compiler.getLangOpts()
     );
     char const *start = sm.getCharacterData(lhsLoc);
     char const *end = sm.getCharacterData(rhsLoc);
@@ -157,7 +157,9 @@ void coconut::RuleL3::runCheck(
         clang::SourceLocation first = call->getRParenLoc();
         if (call->getNumArgs() > 0)
             first = call->getArg(0)->getBeginLoc();
-        if (not checkCorrectSeparation(sm, call->getCallee(), first, "(")) {
+        if (not checkCorrectSeparation(
+                compiler, sm, call->getCallee(), first, "("
+            )) {
             report.reportViolation(*this, compiler, first);
             return;
         }
@@ -169,7 +171,7 @@ void coconut::RuleL3::runCheck(
             auto const &arg = std::get<0>(pair);
             auto const &next = std::get<1>(pair);
             if (not checkCorrectSeparation(
-                    sm, arg, next->getBeginLoc(), ", "
+                    compiler, sm, arg, next->getBeginLoc(), ", "
                 )) {
                 report.reportViolation(*this, compiler, next->getBeginLoc());
             }
@@ -232,6 +234,51 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, loc);
         }
     });
+    // Handles for loop conditions
+    LambdaCallback forLoop([&](MatchFinder::MatchResult const &result) {
+        auto stmt = result.Nodes.getNodeAs<clang::ForStmt>("stmt");
+        if (!stmt)
+            return;
+
+        clang::Stmt const *init = stmt->getInit();
+        clang::Stmt const *cond = stmt->getCond();
+        clang::Stmt const *inc = stmt->getInc();
+
+        if (init == nullptr || cond == nullptr || inc == nullptr) {
+            // Missing a part of the loop will hopefully be another coding
+            // style error soon, so we don't need to report it here
+            return;
+        }
+
+        if (not checkCorrectSpaceAfter(
+                sm, stmt->getLParenLoc(), init, 1, false
+            )) {
+            report.reportViolation(*this, compiler, stmt->getLParenLoc());
+            return;
+        }
+
+        if (not checkCorrectSeparation(
+                compiler, sm, init, cond->getBeginLoc(), " "
+            )
+            and not checkCorrectSeparation(
+                compiler, sm, init, cond->getBeginLoc(), "; "
+            )) {
+            report.reportViolation(*this, compiler, init->getEndLoc());
+            return;
+        }
+        if (not checkCorrectSeparation(
+                compiler, sm, cond, inc->getBeginLoc(), " "
+            )
+            and not checkCorrectSeparation(
+                compiler, sm, cond, inc->getBeginLoc(), "; "
+            )) {
+            report.reportViolation(*this, compiler, cond->getEndLoc());
+            return;
+        }
+        if (not checkCorrectSpaceBefore(sm, stmt->getRParenLoc(), inc, false)) {
+            report.reportViolation(*this, compiler, stmt->getRParenLoc());
+        }
+    });
 
     finder.addMatcher(
         binaryOperator(
@@ -273,5 +320,6 @@ void coconut::RuleL3::runCheck(
     finder.addMatcher(
         conditionalOperator(isExpansionInMainFile()).bind("op"), &ternary
     );
+    finder.addMatcher(forStmt(isExpansionInMainFile()).bind("stmt"), &forLoop);
     finder.matchAST(context);
 }

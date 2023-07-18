@@ -35,6 +35,20 @@ int flower(void)
     } while(0);
 }
 
+int wrong_fors(int j)
+{
+    for (int i = 0;i < 10; i++) {
+        j++;
+    }
+    for (int i = 0 ;i < 10; i++) {
+        j++;
+    }
+    for (int i = 0; i < 10 ; i++) {
+        j++;
+    }
+    return j;
+}
+
 int main(void)
 {
     flowy();
