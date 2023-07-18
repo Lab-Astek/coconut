@@ -211,6 +211,27 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, loc);
         }
     });
+    // Handles the ternary operator
+    LambdaCallback ternary([&](MatchFinder::MatchResult const &result) {
+        auto op = result.Nodes.getNodeAs<clang::ConditionalOperator>("op");
+        if (!op)
+            return;
+        clang::SourceLocation loc = op->getQuestionLoc();
+        if (loc.isMacroID())
+            return;
+
+        if (not checkCorrectSpaceBefore(sm, loc, op->getLHS(), true)
+            || not checkCorrectSpaceAfter(sm, loc, op->getRHS(), 1, true)) {
+            report.reportViolation(*this, compiler, loc);
+            return;
+        }
+
+        loc = op->getColonLoc();
+        if (not checkCorrectSpaceBefore(sm, loc, op->getLHS(), true)
+            || not checkCorrectSpaceAfter(sm, loc, op->getRHS(), 1, true)) {
+            report.reportViolation(*this, compiler, loc);
+        }
+    });
 
     finder.addMatcher(
         binaryOperator(
@@ -249,5 +270,8 @@ void coconut::RuleL3::runCheck(
         &keyword
     );
     finder.addMatcher(doStmt(isExpansionInMainFile()).bind("stmt"), &doKeyword);
+    finder.addMatcher(
+        conditionalOperator(isExpansionInMainFile()).bind("op"), &ternary
+    );
     finder.matchAST(context);
 }

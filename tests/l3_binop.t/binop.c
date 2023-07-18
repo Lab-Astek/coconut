@@ -45,6 +45,20 @@ int comma(int a, int b, int c)
     return a;
 }
 
+int ternary(int a, int b, int c)
+{
+    a = a ? b : c;
+    a = a? b : c;
+    a = a ?b : c;
+    a = a?b : c;
+    a = a ? b :c;
+    a = a ? b  :c;
+    a = a ? b: c;
+    a = a ? b:c;
+    a = a?b:c;
+    return a;
+}
+
 int main(void)
 {
     return make_calculations(1, 2, 3);
