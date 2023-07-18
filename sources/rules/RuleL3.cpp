@@ -24,30 +24,45 @@ coconut::RuleL3::RuleL3()
 }
 
 static bool checkCorrectSpaceBefore(
-    clang::SourceManager &sm, clang::SourceLocation loc, clang::Expr const *lhs
+    clang::SourceManager &sm, clang::SourceLocation loc, clang::Expr const *lhs,
+    bool expectSpace = true
 )
 {
     clang::SourceLocation lhsLoc = lhs->getEndLoc();
     unsigned int lhsLine = sm.getExpansionLineNumber(lhsLoc);
     unsigned int opLine = sm.getExpansionLineNumber(loc);
     bool lhsDiffLine = lhsLine != opLine || lhsLoc.isMacroID();
+
+    if (lhsDiffLine)
+        return true;
+
     char const *before = sm.getCharacterData(loc) - 1;
 
-    return lhsDiffLine || (before[0] == ' ' && before[-1] != ' ');
+    if (expectSpace)
+        return (before[0] == ' ' && before[-1] != ' ');
+    else
+        return (before[0] != ' ');
 }
 
 static bool checkCorrectSpaceAfter(
     clang::SourceManager &sm, clang::SourceLocation loc, clang::Expr const *rhs,
-    size_t opLen
+    size_t opLen, bool expectSpace = true
 )
 {
     clang::SourceLocation rhsLoc = rhs->getBeginLoc();
     unsigned int rhsLine = sm.getExpansionLineNumber(rhsLoc);
     unsigned int opLine = sm.getExpansionLineNumber(loc);
     bool rhsDiffLine = rhsLine != opLine || rhsLoc.isMacroID();
+
+    if (rhsDiffLine)
+        return true;
+
     char const *after = sm.getCharacterData(loc) + opLen;
 
-    return rhsDiffLine || (after[0] == ' ' && after[1] != ' ');
+    if (expectSpace)
+        return (after[0] == ' ' && after[1] != ' ');
+    else
+        return (after[0] != ' ');
 }
 
 void coconut::RuleL3::runCheck(
@@ -67,8 +82,32 @@ void coconut::RuleL3::runCheck(
         clang::SourceManager &sm = compiler.getSourceManager();
 
         int opLen = op->getOpcodeStr().size();
-        if (not checkCorrectSpaceBefore(sm, loc, op->getLHS()) ||
-            not checkCorrectSpaceAfter(sm, loc, op->getRHS(), opLen)) {
+        if (not checkCorrectSpaceBefore(sm, loc, op->getLHS())
+            || not checkCorrectSpaceAfter(sm, loc, op->getRHS(), opLen)) {
+            report.reportViolation(*this, compiler, loc);
+        }
+    });
+    // Handles unary operators
+    LambdaCallback unary([&](MatchFinder::MatchResult const &result) {
+        auto op = result.Nodes.getNodeAs<clang::UnaryOperator>("op");
+        if (!op)
+            return;
+        clang::SourceLocation loc = op->getOperatorLoc();
+        if (loc.isMacroID())
+            return;
+        clang::SourceManager &sm = compiler.getSourceManager();
+
+        bool ok;
+        if (op->isPostfix()) {
+            ok = checkCorrectSpaceBefore(sm, loc, op->getSubExpr(), false);
+        } else {
+            int opLen
+                = clang::UnaryOperator::getOpcodeStr(op->getOpcode()).size();
+            ok = checkCorrectSpaceAfter(
+                sm, loc, op->getSubExpr(), opLen, false
+            );
+        }
+        if (not ok) {
             report.reportViolation(*this, compiler, loc);
         }
     });
@@ -80,6 +119,14 @@ void coconut::RuleL3::runCheck(
         )
             .bind("op"),
         &binary
+    );
+    finder.addMatcher(
+        unaryOperator(
+            // As usual, we don't want to check header files
+            isExpansionInMainFile()
+        )
+            .bind("op"),
+        &unary
     );
     finder.matchAST(context);
 }
