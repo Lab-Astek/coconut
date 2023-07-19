@@ -46,6 +46,8 @@ set(SOURCES
 
     sources/rules/RuleC2.cpp
     sources/rules/RuleC3.cpp
+
+    sources/rules/RuleH3.cpp
 )
 
 include_directories(

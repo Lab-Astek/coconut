@@ -5,7 +5,6 @@
 ** G5
 */
 
-#include "LambdaCallback.hpp"
 #include "rules/Rules.hpp"
 
 #include <clang/AST/ASTContext.h>
@@ -23,7 +22,7 @@ coconut::RuleG5::RuleG5()
 }
 
 void coconut::RuleG5::runCheck(ReportHandler &report,
-    clang::CompilerInstance &compiler, clang::ASTContext &context) const
+    clang::CompilerInstance &compiler, [[maybe_unused]] clang::ASTContext &context) const
 {
     clang::SourceManager &sourceManager = compiler.getSourceManager();
 
