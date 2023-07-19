@@ -11,6 +11,7 @@ find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
 
 add_compile_definitions(LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1)
+add_compile_options(-fno-rtti)
 
 link_libraries(
     clang-cpp
@@ -34,6 +35,7 @@ set(SOURCES
     sources/rules/RuleF5.cpp
     sources/rules/RuleF6.cpp
     sources/rules/RuleF7.cpp
+    sources/rules/RuleF8.cpp
 
     sources/rules/RuleL1.cpp
     sources/rules/RuleL5.cpp
