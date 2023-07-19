@@ -28,19 +28,11 @@ void coconut::RuleF8::runCheck(ReportHandler &report,
     MatchFinder finder;
     clang::SourceManager const &sourceManager = context.getSourceManager();
 
-    // First, we will get all the comments in the current file and stock their location in a vector
+    // First, we will get a list of the comments in the current file
     auto const *comments = context.Comments.getCommentsInFile(sourceManager.getMainFileID());
-    std::vector<clang::SourceLocation> commentsPos;
-
-    if (comments == nullptr)
-        return;
-
-    // Push all comments to the vector
-    for (auto const &comment: *comments)
-        commentsPos.push_back(comment.second->getBeginLoc());
 
     // Here the handler will check if a comment is inside any function definition
-    // using his location stocked in the vector
+    // using his location stocked before
     LambdaCallback handler([&] (MatchFinder::MatchResult const &result) {
         auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function");
 
@@ -55,10 +47,12 @@ void coconut::RuleF8::runCheck(ReportHandler &report,
         std::size_t funcStart = sourceManager.getExpansionLineNumber(body->getBeginLoc());
         std::size_t funcEnd = sourceManager.getExpansionLineNumber(body->getEndLoc());
 
-        for (auto &comment: commentsPos) {
-            if (funcStart <= sourceManager.getExpansionLineNumber(comment)
-                and sourceManager.getExpansionLineNumber(comment) < funcEnd)
-                report.reportViolation(*this, compiler, comment);
+        for (auto const &comment: *comments) {
+            auto commentLocation = comment.second->getBeginLoc();
+
+            if (funcStart <= sourceManager.getExpansionLineNumber(commentLocation)
+                and sourceManager.getExpansionLineNumber(commentLocation) < funcEnd)
+                report.reportViolation(*this, compiler, commentLocation);
         }
 
     });
@@ -67,7 +61,7 @@ void coconut::RuleF8::runCheck(ReportHandler &report,
         functionDecl(
             // we don't want to catch functions declared in headers
             isExpansionInMainFile(),
-            // we don't care about functions declaration
+            // we don't care about functions prototype
             isDefinition()
         )
             .bind("function"),
