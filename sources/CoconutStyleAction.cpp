@@ -30,6 +30,7 @@ std::unique_ptr<clang::ASTConsumer> StyleAction::CreateASTConsumer(
 bool StyleAction::BeginInvocation(clang::CompilerInstance &compiler)
 {
     compiler.getInvocation().getPreprocessorOpts().DetailedRecord = true;
+    compiler.getInvocation().getLangOpts()->CommentOpts.ParseAllComments = true;
     return true;
 }
 
