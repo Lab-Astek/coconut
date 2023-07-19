@@ -64,7 +64,7 @@ If you want to contribute to this repository, please read the guidelines from th
 | C-F5            | ✅                                                       |
 | C-F6            | ✅                                                       |
 | C-F7            | ✅                                                       |
-| C-F8            | ❌🍌 Planned                                             |
+| C-F8            | ✅                                                       |
 | C-F9            | ❌ Would not compile as clang doesn't support them       |
 | C-L1            | ✅                                                       |
 | C-L2            | ❌ Planned                                               |
