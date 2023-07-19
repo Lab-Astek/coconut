@@ -27,6 +27,7 @@ set(SOURCES
     sources/rules/RuleO3.cpp
     sources/rules/RuleO4.cpp
 
+    sources/rules/RuleG2.cpp
     sources/rules/RuleG4.cpp
     sources/rules/RuleG5.cpp
 

@@ -36,3 +36,5 @@ build
 
 coding-style-reports.log
 coding-style-files.log
+
+.vscode
