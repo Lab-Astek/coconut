@@ -80,7 +80,7 @@ If you want to contribute to this repository, please read the guidelines from th
 | C-C3            | ✅                                                       |
 | C-H1            | ❌ Planned                                               |
 | C-H2            | ❌ Planned                                               |
-| C-H3            | ❌ Planned                                               |
+| C-H3            | ✅                                                       |
 | C-A1            | ❌ Must be checked by humans                             |
 | C-A2            | ❌ Must be checked by humans                             |
 | C-A3            | 🍌                                                       |
