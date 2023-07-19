@@ -5,7 +5,6 @@
 ** G5
 */
 
-#include "LambdaCallback.hpp"
 #include "rules/Rules.hpp"
 
 #include <clang/AST/ASTContext.h>
