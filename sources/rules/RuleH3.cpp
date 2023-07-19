@@ -22,7 +22,7 @@ coconut::RuleH3::RuleH3()
 }
 
 void coconut::RuleH3::runCheck(ReportHandler &report,
-    clang::CompilerInstance &compiler, clang::ASTContext &context) const
+    clang::CompilerInstance &compiler, [[maybe_unused]] clang::ASTContext &context) const
 {
     for (clang::PreprocessedEntity *entity :
          *(compiler.getPreprocessor().getPreprocessingRecord())) {

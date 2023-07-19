@@ -6,7 +6,6 @@
 */
 
 #include "Constants.hpp"
-#include "LambdaCallback.hpp"
 #include "rules/Rules.hpp"
 
 #include <clang/AST/ASTContext.h>
@@ -25,7 +24,7 @@ coconut::RuleO4::RuleO4()
 
 void coconut::RuleO4::runCheck(
     ReportHandler &report, clang::CompilerInstance &compiler,
-    clang::ASTContext &context
+    [[maybe_unused]] clang::ASTContext &context
 ) const
 {
     clang::SourceManager &sm = compiler.getSourceManager();
