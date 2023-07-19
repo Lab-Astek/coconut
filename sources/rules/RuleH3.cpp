@@ -37,6 +37,7 @@ void coconut::RuleH3::runCheck(ReportHandler &report,
         auto beginloc = macro->getSourceRange().getBegin();
         auto endLoc = macro->getSourceRange().getEnd();
 
+        // we don't want to check macros defined in extern project headers (system headers for exemple)
         if (not sourceManager.isWrittenInMainFile(beginloc))
             continue;
 
