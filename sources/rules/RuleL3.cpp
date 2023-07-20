@@ -145,6 +145,10 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, loc);
         }
     });
+    finder.addMatcher(
+        binaryOperator(isExpansionInMainFile()).bind("op"), &binary
+    );
+
     // Handles unary operators
     LambdaCallback unary([&](MatchFinder::MatchResult const &result) {
         auto op = result.Nodes.getNodeAs<clang::UnaryOperator>("op");
@@ -169,6 +173,10 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, loc);
         }
     });
+    finder.addMatcher(
+        unaryOperator(isExpansionInMainFile()).bind("op"), &unary
+    );
+
     // Handles function calls
     LambdaCallback call([&](MatchFinder::MatchResult const &result) {
         auto call = result.Nodes.getNodeAs<clang::CallExpr>("call");
@@ -211,6 +219,8 @@ void coconut::RuleL3::runCheck(
             }
         }
     });
+    finder.addMatcher(callExpr(isExpansionInMainFile()).bind("call"), &call);
+
     // Handles statements starting with a keyword
     LambdaCallback keyword([&](MatchFinder::MatchResult const &result) {
         auto op = result.Nodes.getNodeAs<clang::Stmt>("stmt");
@@ -234,6 +244,19 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, loc);
         }
     });
+    finder.addMatcher(
+        stmt(anyOf(
+            ifStmt(isExpansionInMainFile()).bind("stmt"),
+            whileStmt(isExpansionInMainFile()).bind("stmt"),
+            forStmt(isExpansionInMainFile()).bind("stmt"),
+            returnStmt(isExpansionInMainFile()).bind("stmt"),
+            switchStmt(isExpansionInMainFile()).bind("stmt"),
+            caseStmt(isExpansionInMainFile()).bind("stmt"),
+            doStmt(isExpansionInMainFile()).bind("stmt")
+        )),
+        &keyword
+    );
+
     // Handles the do-while loops' while keyword
     LambdaCallback doKeyword([&](MatchFinder::MatchResult const &result) {
         auto op = result.Nodes.getNodeAs<clang::DoStmt>("stmt");
@@ -250,6 +273,8 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, loc);
         }
     });
+    finder.addMatcher(doStmt(isExpansionInMainFile()).bind("stmt"), &doKeyword);
+
     // Handles the ternary operator
     LambdaCallback ternary([&](MatchFinder::MatchResult const &result) {
         auto op = result.Nodes.getNodeAs<clang::ConditionalOperator>("op");
@@ -273,6 +298,10 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, loc);
         }
     });
+    finder.addMatcher(
+        conditionalOperator(isExpansionInMainFile()).bind("op"), &ternary
+    );
+
     // Handles for loop conditions
     LambdaCallback forLoop([&](MatchFinder::MatchResult const &result) {
         auto stmt = result.Nodes.getNodeAs<clang::ForStmt>("stmt");
@@ -324,6 +353,8 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, stmt->getRParenLoc());
         }
     });
+    finder.addMatcher(forStmt(isExpansionInMainFile()).bind("stmt"), &forLoop);
+
     // Handles the unary operators `sizeof` and `alignof`
     LambdaCallback sizeofOp([&](MatchFinder::MatchResult const &result) {
         auto op = result.Nodes.getNodeAs<clang::UnaryExprOrTypeTraitExpr>("op");
@@ -345,50 +376,9 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, loc);
         }
     });
-
-    finder.addMatcher(
-        binaryOperator(
-            // As usual, we don't want to check header files
-            isExpansionInMainFile()
-        )
-            .bind("op"),
-        &binary
-    );
-    finder.addMatcher(
-        unaryOperator(
-            // As usual, we don't want to check header files
-            isExpansionInMainFile()
-        )
-            .bind("op"),
-        &unary
-    );
-    finder.addMatcher(
-        callExpr(
-            // As usual, we don't want to check header files
-            isExpansionInMainFile()
-        )
-            .bind("call"),
-        &call
-    );
-    finder.addMatcher(
-        stmt(anyOf(
-            ifStmt(isExpansionInMainFile()).bind("stmt"),
-            whileStmt(isExpansionInMainFile()).bind("stmt"),
-            forStmt(isExpansionInMainFile()).bind("stmt"),
-            returnStmt(isExpansionInMainFile()).bind("stmt"),
-            switchStmt(isExpansionInMainFile()).bind("stmt"),
-            caseStmt(isExpansionInMainFile()).bind("stmt"),
-            doStmt(isExpansionInMainFile()).bind("stmt")
-        )),
-        &keyword
-    );
-    finder.addMatcher(doStmt(isExpansionInMainFile()).bind("stmt"), &doKeyword);
-    finder.addMatcher(
-        conditionalOperator(isExpansionInMainFile()).bind("op"), &ternary
-    );
-    finder.addMatcher(forStmt(isExpansionInMainFile()).bind("stmt"), &forLoop);
     finder.addMatcher(
         unaryExprOrTypeTraitExpr(isExpansionInMainFile()).bind("op"), &sizeofOp
     );
+
     finder.matchAST(context);
 }
