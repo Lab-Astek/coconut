@@ -68,7 +68,7 @@ If you want to contribute to this repository, please read the guidelines from th
 | C-F9            | ❌ Would not compile as clang doesn't support them       |
 | C-L1            | ✅                                                       |
 | C-L2            | ❌ Planned                                               |
-| C-L3            | ✅ Except for semicolons terminating statements          |
+| C-L3            | ✅                                                       |
 | C-L4            | ❌🍌 Planned                                             |
 | C-L5            | ✅                                                       |
 | C-L6            | ✅                                                       |
