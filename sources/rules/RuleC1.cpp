@@ -42,6 +42,8 @@ void coconut::RuleC1::runCheck(
     // Match control flow block statements
     auto controlFlow
         = anyOf(ifStmt(), forStmt(), whileStmt(), switchStmt(), doStmt());
+
+    // Match all control flow statements that are nested too deep
     finder.addMatcher(
         stmt(
             isExpansionInMainFile(),
