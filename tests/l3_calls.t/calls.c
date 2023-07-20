@@ -23,6 +23,19 @@ void *make_calls(void)
     return ptr;
 }
 
+int other_paren(void)
+{
+    int a = 0;
+
+    a = (a);
+    a = ( a);
+    a = (a );
+    a = ( a );
+    a = (a) + (a);
+    a = (a) + ( a);
+    return (a);
+}
+
 int main(void)
 {
     free(make_calls());

@@ -221,6 +221,30 @@ void coconut::RuleL3::runCheck(
     });
     finder.addMatcher(callExpr(isExpansionInMainFile()).bind("call"), &call);
 
+    // Handles parentheses
+    LambdaCallback paren([&](MatchFinder::MatchResult const &result) {
+        auto paren = result.Nodes.getNodeAs<clang::ParenExpr>("paren");
+        if (!paren)
+            return;
+
+        // Check before the right parenthesis
+        if (not checkCorrectSpaceBefore(
+                sm, paren->getRParen(), paren->getSubExpr(), false
+            )) {
+            report.reportViolation(*this, compiler, paren->getRParen());
+            return;
+        }
+
+        // Check after the left parenthesis
+        if (not checkCorrectSpaceAfter(
+                sm, paren->getLParen(), paren->getSubExpr(), 1, false
+            )) {
+            report.reportViolation(*this, compiler, paren->getLParen());
+            return;
+        }
+    });
+    finder.addMatcher(parenExpr(isExpansionInMainFile()).bind("paren"), &paren);
+
     // Handles statements starting with a keyword
     LambdaCallback keyword([&](MatchFinder::MatchResult const &result) {
         auto op = result.Nodes.getNodeAs<clang::Stmt>("stmt");
