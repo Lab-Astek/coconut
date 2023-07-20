@@ -31,6 +31,9 @@ void coconut::RuleF8::runCheck(ReportHandler &report,
     // First, we will get a list of the comments in the current file
     auto const *comments = context.Comments.getCommentsInFile(sourceManager.getMainFileID());
 
+    if (!comments)
+        return;
+
     // Here the handler will check if a comment is inside any function definition
     // using his location stocked before
     LambdaCallback handler([&] (MatchFinder::MatchResult const &result) {
