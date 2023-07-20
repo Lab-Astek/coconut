@@ -5,7 +5,7 @@
 ** test L5
 */
 
-#include <stddef.h>
+#include "blanks.h"
 
 int blank_in_the_mid(void)
 {
@@ -23,11 +23,12 @@ int missing_blank(void)
     return i;
 }
 
-char *ok_blank(void)
+long ok_with_macros(char *buffer)
 {
-    char *i = NULL;
+    long description_size = MIN(*((long *) buffer),
+        MAX_LENGTH);
 
-    return i;
+    return description_size;
 }
 
 int ok_no_vars(void)

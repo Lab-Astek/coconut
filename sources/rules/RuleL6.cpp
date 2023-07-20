@@ -62,7 +62,7 @@ void coconut::RuleL6::runCheck(
                 if (!varDecl)
                     continue; // Ignore struct declarations
                 separatingLine
-                    = sm.getExpansionLineNumber(varDecl->getEndLoc()) + 1;
+                    = sm.getExpansionLineNumber(decl->getEndLoc()) + 1;
             }
         }
         clang::SourceLocation loc = body->getBeginLoc();
