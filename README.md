@@ -43,7 +43,7 @@ If you want to contribute to this repository, please read the guidelines from th
 ## Supported rules
 
 | Rule identifier | Status                                                   |
-| --------------- | -------------------------------------------------------- |
+|-----------------|----------------------------------------------------------|
 | C-O1            | 🍌                                                       |
 | C-O2            | ❌ Must be checked by humans                             |
 | C-O3            | ✅ Checks for five functions per file, not for coherence |
@@ -68,7 +68,7 @@ If you want to contribute to this repository, please read the guidelines from th
 | C-F9            | ❌ Would not compile as clang doesn't support them       |
 | C-L1            | ✅                                                       |
 | C-L2            | ❌ Planned                                               |
-| C-L3            | ❌ Planned                                               |
+| C-L3            | ✅ Except for semicolons terminating statements          |
 | C-L4            | ❌🍌 Planned                                             |
 | C-L5            | ✅                                                       |
 | C-L6            | ✅                                                       |
