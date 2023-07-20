@@ -76,6 +76,9 @@ static bool checkCorrectSpaceAfter(
 
     char const *after = sm.getCharacterData(loc) + opLen;
 
+    if (after[0] == '\n')
+        return true;
+
     if (expectSpace)
         return (after[0] == ' ' && after[1] != ' ');
     else

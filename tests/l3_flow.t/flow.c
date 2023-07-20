@@ -46,7 +46,8 @@ int wrong_fors(int j)
     for (int i = 0; i < 10 ; i++) {
         j++;
     }
-    return j;
+    return
+        j;
 }
 
 int main(void)
