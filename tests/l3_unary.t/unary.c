@@ -39,6 +39,19 @@ bool macro_operators(bool a, bool b)
     return (not a and b) or (compl (a << 3) or b);
 }
 
+bool sizeof_is_an_unary_operator(void)
+{
+    unsigned long a = sizeof(int);
+
+    a += sizeof (long);
+    a += sizeof (a);
+    a += sizeof(a);
+    a += sizeof a;
+    a += _Alignof (long);
+    a += _Alignof(int);
+    return a;
+}
+
 int main(void)
 {
     return make_calculations(1, 2, 3);

@@ -63,11 +63,10 @@ static bool checkCorrectSpaceBefore(
 /// \param expectSpace True if there should be a space
 /// \return True if the space is correct
 static bool checkCorrectSpaceAfter(
-    clang::SourceManager &sm, clang::SourceLocation loc, clang::Stmt const *rhs,
-    size_t opLen, bool expectSpace
+    clang::SourceManager &sm, clang::SourceLocation loc,
+    clang::SourceLocation rhsLoc, size_t opLen, bool expectSpace
 )
 {
-    clang::SourceLocation rhsLoc = rhs->getBeginLoc();
     unsigned int rhsLine = sm.getExpansionLineNumber(rhsLoc);
     unsigned int opLine = sm.getExpansionLineNumber(loc);
     bool rhsDiffLine = rhsLine != opLine || rhsLoc.isMacroID();
@@ -81,6 +80,16 @@ static bool checkCorrectSpaceAfter(
         return (after[0] == ' ' && after[1] != ' ');
     else
         return (after[0] != ' ');
+}
+
+static bool checkCorrectSpaceAfter(
+    clang::SourceManager &sm, clang::SourceLocation loc, clang::Stmt const *rhs,
+    size_t opLen, bool expectSpace
+)
+{
+    return checkCorrectSpaceAfter(
+        sm, loc, rhs->getBeginLoc(), opLen, expectSpace
+    );
 }
 
 /// Checks if there is the expected string between two statements
@@ -315,6 +324,27 @@ void coconut::RuleL3::runCheck(
             report.reportViolation(*this, compiler, stmt->getRParenLoc());
         }
     });
+    // Handles the unary operators `sizeof` and `alignof`
+    LambdaCallback sizeofOp([&](MatchFinder::MatchResult const &result) {
+        auto op = result.Nodes.getNodeAs<clang::UnaryExprOrTypeTraitExpr>("op");
+        if (!op)
+            return;
+        clang::SourceLocation loc = op->getOperatorLoc();
+        if (loc.isMacroID())
+            return;
+
+        int opLen
+            = clang::Lexer::MeasureTokenLength(loc, sm, compiler.getLangOpts());
+        if (not checkCorrectSpaceAfter(
+                sm, loc,
+                op->isArgumentType()
+                    ? op->getArgumentTypeInfo()->getTypeLoc().getBeginLoc()
+                    : op->getArgumentExpr()->getBeginLoc(),
+                opLen, false
+            )) {
+            report.reportViolation(*this, compiler, loc);
+        }
+    });
 
     finder.addMatcher(
         binaryOperator(
@@ -357,5 +387,8 @@ void coconut::RuleL3::runCheck(
         conditionalOperator(isExpansionInMainFile()).bind("op"), &ternary
     );
     finder.addMatcher(forStmt(isExpansionInMainFile()).bind("stmt"), &forLoop);
+    finder.addMatcher(
+        unaryExprOrTypeTraitExpr(isExpansionInMainFile()).bind("op"), &sizeofOp
+    );
     finder.matchAST(context);
 }
