@@ -36,6 +36,15 @@ int other_paren(void)
     return (a);
 }
 
+int semi_stuff(void)
+{
+    int a = 0;
+
+    a = (a) ;
+    a = 3 + 7 ;
+    return (a);
+}
+
 int main(void)
 {
     free(make_calls());

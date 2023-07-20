@@ -404,5 +404,39 @@ void coconut::RuleL3::runCheck(
         unaryExprOrTypeTraitExpr(isExpansionInMainFile()).bind("op"), &sizeofOp
     );
 
+    // Handles all statements, checking for before the semicolon
+    LambdaCallback stmtSemi([&](MatchFinder::MatchResult const &result) {
+        auto stmt = result.Nodes.getNodeAs<clang::Stmt>("stmt");
+        if (!stmt)
+            return;
+        clang::SourceLocation loc = stmt->getEndLoc();
+        if (loc.isMacroID())
+            return;
+
+        int len
+            = clang::Lexer::MeasureTokenLength(loc, sm, compiler.getLangOpts());
+        char const *doc = sm.getCharacterData(loc) + len - 1;
+        if (doc[0] == ';')
+            return;
+        if (doc[0] != ' ')
+            doc++;
+        if (doc[0] == ';')
+            return;
+        while (doc[0] == ' ')
+            doc++;
+        if (doc[0] == ';') {
+            report.reportViolation(*this, compiler, loc);
+        }
+    });
+    finder.addMatcher(
+        stmt(
+            isExpansionInMainFile(),
+            // Avoid false positives and duplicates
+            hasParent(compoundStmt())
+        )
+            .bind("stmt"),
+        &stmtSemi
+    );
+
     finder.matchAST(context);
 }
