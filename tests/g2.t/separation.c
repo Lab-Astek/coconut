@@ -24,9 +24,41 @@ void nothing(void)
     return;
 }
 
-// First error test coding style G2
+// Not coding style error
 
 void hello(void)
+{
+    return;
+}
+
+// Not coding style error
+void also_nothing(void)
+{
+    return;
+}
+
+// Not coding style error
+// Not coding style error
+// Not coding style error
+// Not coding style error
+// Not coding style error
+// Not coding style error
+// Not coding style error
+// Not coding style error
+// Not coding style error
+// Not coding style error
+// Not coding style error
+// Not coding style error
+void other_funciton(void)
+{
+    return;
+}
+
+
+// coding style error
+// coding style error
+// coding style error
+void end_funciton(void)
 {
     return;
 }
