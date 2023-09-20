@@ -28,12 +28,15 @@ coconut::RuleG2::RuleG2()
 {
 }
 
-bool isComment(const char *str)
+bool isComment(clang::SourceLocation line, std::map<unsigned int, clang::RawComment *> const *comments)
 {
-    if (strncmp(str, "//", 2) == 0)
-        return true;
-    if (strncmp(str, "/*", 2) == 0)
-        return true;
+    for (auto const &comment: *comments) {
+        auto commentBeginLocation = comment.second->getBeginLoc();
+        auto commentEndLocation = comment.second->getEndLoc();
+
+        if (line >= commentBeginLocation && line <= commentEndLocation)
+            return true;
+    }
     return false;
 }
 
@@ -43,37 +46,50 @@ void coconut::RuleG2::runCheck(
 ) const
 {
     MatchFinder finder;
+    clang::SourceManager const &sm = context.getSourceManager();
+
+    // First, we will get a list of the comments in the current file
+    auto const *comments = context.Comments.getCommentsInFile(sm.getMainFileID());
+
+    if (!comments)
+        return;
+
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
         auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function");
 
         if (!func)
             return;
 
-        auto &sm = result.Context->getSourceManager();
         auto start = sm.getExpansionLoc(func->getBeginLoc());
         auto currentLine = sm.getExpansionLineNumber(start);
-        
         auto beforeIsEmpty = false;
 
         for (auto i = currentLine - 1; i > 0; i--) {
             auto beforeCurrentLine = sm.translateLineCol(sm.getFileID(start), i, 1);
-            auto beforeCurrentLineStr = sm.getCharacterData(beforeCurrentLine);
+            char const *sol = sm.getCharacterData(
+                sm.translateLineCol(sm.getMainFileID(), i, 1)
+            );
+            char const *eol = sm.getCharacterData(
+                sm.translateLineCol(sm.getMainFileID(), i, UINT_MAX)
+            );
+            llvm::StringRef line(sol, eol - sol);
 
-            if (isComment(beforeCurrentLineStr)) {
+            if (isComment(beforeCurrentLine, comments)) {
                 beforeIsEmpty = false;
                 continue;
             }
 
-            if (strncmp(beforeCurrentLineStr, "\n", 1) != 0) {
-                beforeIsEmpty = false;
-                break;
+            if (not line.empty() && beforeIsEmpty == true) {
+                return;
             }
 
-            if (beforeIsEmpty == false && strncmp(beforeCurrentLineStr, "\n", 1) == 0) {
+            if (line.empty() && beforeIsEmpty == false) {
                 beforeIsEmpty = true;
                 continue;
             }
+
             report.reportViolation(*this, compiler, start);
+            return;
         }
     });
 
