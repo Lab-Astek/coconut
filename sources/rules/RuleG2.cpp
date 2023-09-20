@@ -28,32 +28,53 @@ coconut::RuleG2::RuleG2()
 {
 }
 
+bool isComment(const char *str)
+{
+    if (strncmp(str, "//", 2) == 0)
+        return true;
+    if (strncmp(str, "/*", 2) == 0)
+        return true;
+    return false;
+}
+
 void coconut::RuleG2::runCheck(
     ReportHandler &report, clang::CompilerInstance &compiler,
     clang::ASTContext &context
 ) const
 {
-    std::size_t func_nbr = 0;
-    unsigned int saveEndLine;
-    clang::SourceManager &sm = compiler.getSourceManager();
-
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
         auto func = result.Nodes.getNodeAs<clang::FunctionDecl>("function");
 
         if (!func)
             return;
-        func_nbr++;
 
-        auto start = func->getBeginLoc();
-        auto end = func->getEndLoc();
+        auto &sm = result.Context->getSourceManager();
+        auto start = sm.getExpansionLoc(func->getBeginLoc());
+        auto currentLine = sm.getExpansionLineNumber(start);
+        
+        auto beforeIsEmpty = false;
 
-        if (func_nbr >= 2) {
-            unsigned int startLine = sm.getExpansionLineNumber(start);
-            if (startLine - saveEndLine != 2)
-                report.reportViolation(*this, compiler, start);
+        for (auto i = currentLine - 1; i > 0; i--) {
+            auto beforeCurrentLine = sm.translateLineCol(sm.getFileID(start), i, 1);
+            auto beforeCurrentLineStr = sm.getCharacterData(beforeCurrentLine);
+
+            if (isComment(beforeCurrentLineStr)) {
+                beforeIsEmpty = false;
+                continue;
+            }
+
+            if (strncmp(beforeCurrentLineStr, "\n", 1) != 0) {
+                beforeIsEmpty = false;
+                break;
+            }
+
+            if (beforeIsEmpty == false && strncmp(beforeCurrentLineStr, "\n", 1) == 0) {
+                beforeIsEmpty = true;
+                continue;
+            }
+            report.reportViolation(*this, compiler, start);
         }
-        saveEndLine = sm.getExpansionLineNumber(end);
     });
 
     // Match all function definitions in the main file
