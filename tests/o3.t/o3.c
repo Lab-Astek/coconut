@@ -5,7 +5,6 @@
 ** o3
 */
 
-
 void first(int *i)
 {
     *i -= 1;

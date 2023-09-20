@@ -49,7 +49,7 @@ If you want to contribute to this repository, please read the guidelines from th
 | C-O3            | ✅ Checks for five functions per file, not for coherence |
 | C-O4            | ✅ Check snake_case naming, not coherence (file)         |
 | C-G1            | 🍌                                                       |
-| C-G2            | ❌🍌 Planned                                             |
+| C-G2            | ✅                                                       |
 | C-G3            | ❌🍌 Planned                                             |
 | C-G4            | ✅                                                       |
 | C-G5            | ✅                                                       |

@@ -7,6 +7,8 @@
 
 NAME	= f6
 
+CFLAGS	= --std=c89 -Wno-deprecated-non-prototype
+
 all: $(NAME)
 
 clean:
