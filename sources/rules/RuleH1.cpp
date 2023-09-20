@@ -16,6 +16,8 @@
 #include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Frontend/CompilerInstance.h>
+#include <clang/Lex/PreprocessingRecord.h>
+#include <clang/Lex/Preprocessor.h>
 #include <llvm/ADT/StringRef.h>
 
 using namespace clang::ast_matchers;
@@ -67,6 +69,25 @@ static void addSourceFile(
         &handler
     );
     finder.matchAST(context);
+
+    // Trigger for macros in source files
+    for (clang::PreprocessedEntity *entity :
+         *(compiler.getPreprocessor().getPreprocessingRecord())) {
+
+        clang::MacroDefinitionRecord *macro
+            = llvm::dyn_cast<clang::MacroDefinitionRecord>(entity);
+
+        if (macro == nullptr)
+            continue;
+
+        clang::SourceManager &sourceManager = compiler.getSourceManager();
+        auto loc = macro->getLocation();
+
+        if (not sourceManager.isWrittenInMainFile(loc))
+            continue;
+
+        report.reportViolation(coconut::RuleH1(), compiler, loc);
+    }
 }
 
 static void addHeaderFile(
@@ -76,7 +97,7 @@ static void addHeaderFile(
 {
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
-        if (auto stmt = result.Nodes.getNodeAs<clang::FunctionDecl>("func")) {
+        if (auto stmt = result.Nodes.getNodeAs<clang::Decl>("func")) {
             report.reportViolation(
                 coconut::RuleH1(), compiler, stmt->getBeginLoc()
             );

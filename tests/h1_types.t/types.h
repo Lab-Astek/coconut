@@ -25,9 +25,4 @@ enum pizza_type {
     FANTASIA
 };
 
-#define MACRO_KO
-
-int main(void)
-{
-    return (0);
-}
+#define MACRO_OK
