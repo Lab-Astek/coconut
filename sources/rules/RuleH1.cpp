@@ -26,8 +26,7 @@ coconut::RuleH1::RuleH1()
 }
 
 static void addSourceFile(
-    ReportHandler &report,
-    clang::CompilerInstance &compiler,
+    ReportHandler &report, clang::CompilerInstance &compiler,
     clang::ASTContext &context
 )
 {
@@ -41,15 +40,18 @@ static void addSourceFile(
     });
     // Trigger for function prototypes in source files
     finder.addMatcher(
-        functionDecl(isExpansionInMainFile(), unless(isDefinition()))
+        functionDecl(
+            isExpansionInMainFile(), unless(isDefinition()),
+            unless(isImplicit())
+        )
             .bind("func"),
         &handler
     );
     // Trigger for static inline function definitions in source files
     finder.addMatcher(
         functionDecl(
-            isExpansionInMainFile(), isDefinition(),
-            isStaticStorageClass(), isInline()
+            isExpansionInMainFile(), isDefinition(), isStaticStorageClass(),
+            isInline()
         )
             .bind("func"),
         &handler
@@ -58,8 +60,7 @@ static void addSourceFile(
 }
 
 static void addHeaderFile(
-    ReportHandler &report,
-    clang::CompilerInstance &compiler,
+    ReportHandler &report, clang::CompilerInstance &compiler,
     clang::ASTContext &context
 )
 {
