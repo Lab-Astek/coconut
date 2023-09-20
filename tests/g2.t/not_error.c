@@ -24,6 +24,11 @@ void hello(void)
     return;
 }
 
+/*
+    not error
+
+
+*/
 // Not coding style error
 // Not coding style error
 // Not coding style error

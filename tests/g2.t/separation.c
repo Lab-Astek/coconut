@@ -5,6 +5,14 @@
 ** separation
 */
 
+/*
+    Not coding style error
+
+
+
+
+    Not coding style error
+*/
 int main(void)
 {
     return 0;
@@ -23,6 +31,10 @@ int hello_world(void)
 // coding style error
 // coding style error
 void end_funciton(void)
+{
+    return;
+}
+void test(void)
 {
     return;
 }
