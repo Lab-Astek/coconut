@@ -32,7 +32,7 @@ static void addSourceFile(
 {
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
-        if (auto stmt = result.Nodes.getNodeAs<clang::FunctionDecl>("func")) {
+        if (auto stmt = result.Nodes.getNodeAs<clang::Decl>("func")) {
             report.reportViolation(
                 coconut::RuleH1(), compiler, stmt->getBeginLoc()
             );
@@ -54,6 +54,16 @@ static void addSourceFile(
             isInline()
         )
             .bind("func"),
+        &handler
+    );
+    // Trigger for typedef declarations in source files
+    finder.addMatcher(
+        typedefDecl(isExpansionInMainFile()).bind("func"),
+        &handler
+    );
+    // Trigger for type declarations in source files
+    finder.addMatcher(
+        tagDecl(isExpansionInMainFile()).bind("func"),
         &handler
     );
     finder.matchAST(context);
