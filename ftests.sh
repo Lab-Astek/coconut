@@ -17,7 +17,7 @@ if [ "$1" = "--local" ]; then
     sudo cmake --install build
 else
     echo "Building docker image"
-    IMAGE=$(docker build -q .)
+    IMAGE=$(docker build --platform linux/amd64 -q .)
     echo "Built image: $IMAGE"
 fi
 
@@ -36,7 +36,7 @@ for expfile in ./tests/*.t/"$EXPECT_FILE"; do
         make fclean > /dev/null
         popd > /dev/null
     else
-        docker run --rm -i \
+        docker run --platform linux/amd64 --rm -i \
            -v "$dirname":/mnt/delivery \
            -v "$dirname":/mnt/reports \
            "$IMAGE" /mnt/delivery /mnt/reports
