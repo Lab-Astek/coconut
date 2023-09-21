@@ -8,7 +8,6 @@
 
 #include "LambdaCallback.hpp"
 #include "Rules.hpp"
-#include "rules/Rules.hpp"
 
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/Decl.h>
@@ -27,26 +26,15 @@ coconut::RuleH1::RuleH1()
 {
 }
 
-static void addSourceFile(
-    ReportHandler &report, clang::CompilerInstance &compiler,
-    clang::ASTContext &context
-)
+template <typename T> static void addSourceFile(MatchFinder &finder, T &handler)
 {
-    MatchFinder finder;
-    LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
-        if (auto stmt = result.Nodes.getNodeAs<clang::Decl>("func")) {
-            report.reportViolation(
-                coconut::RuleH1(), compiler, stmt->getBeginLoc()
-            );
-        }
-    });
     // Trigger for function prototypes in source files
     finder.addMatcher(
         functionDecl(
             isExpansionInMainFile(), unless(isDefinition()),
             unless(isImplicit())
         )
-            .bind("func"),
+            .bind("decl"),
         &handler
     );
     // Trigger for static inline function definitions in source files
@@ -55,21 +43,21 @@ static void addSourceFile(
             isExpansionInMainFile(), isDefinition(), isStaticStorageClass(),
             isInline()
         )
-            .bind("func"),
+            .bind("decl"),
         &handler
     );
     // Trigger for typedef declarations in source files
     finder.addMatcher(
-        typedefDecl(isExpansionInMainFile()).bind("func"),
-        &handler
+        typedefDecl(isExpansionInMainFile()).bind("decl"), &handler
     );
     // Trigger for type declarations in source files
-    finder.addMatcher(
-        tagDecl(isExpansionInMainFile()).bind("func"),
-        &handler
-    );
-    finder.matchAST(context);
+    finder.addMatcher(tagDecl(isExpansionInMainFile()).bind("decl"), &handler);
+}
 
+static void checkMacrosInSourceFile(
+    ReportHandler &report, clang::CompilerInstance &compiler
+)
+{
     // Trigger for macros in source files
     for (clang::PreprocessedEntity *entity :
          *(compiler.getPreprocessor().getPreprocessingRecord())) {
@@ -90,29 +78,17 @@ static void addSourceFile(
     }
 }
 
-static void addHeaderFile(
-    ReportHandler &report, clang::CompilerInstance &compiler,
-    clang::ASTContext &context
-)
+template <typename T> static void addHeaderFile(MatchFinder &finder, T &handler)
 {
-    MatchFinder finder;
-    LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
-        if (auto stmt = result.Nodes.getNodeAs<clang::Decl>("func")) {
-            report.reportViolation(
-                coconut::RuleH1(), compiler, stmt->getBeginLoc()
-            );
-        }
-    });
     // Trigger for functions definitions in header files, unless static inline
     finder.addMatcher(
         functionDecl(
             isExpansionInMainFile(), isDefinition(),
             unless(allOf(isStaticStorageClass(), isInline()))
         )
-            .bind("func"),
+            .bind("decl"),
         &handler
     );
-    finder.matchAST(context);
 }
 
 void coconut::RuleH1::runCheck(
@@ -122,9 +98,21 @@ void coconut::RuleH1::runCheck(
 {
     clang::SourceManager &sm = context.getSourceManager();
     auto filename = sm.getFileEntryForID(sm.getMainFileID())->getName();
+
+    MatchFinder finder;
+    LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
+        if (auto stmt = result.Nodes.getNodeAs<clang::Decl>("decl")) {
+            report.reportViolation(
+                coconut::RuleH1(), compiler, stmt->getBeginLoc()
+            );
+        }
+    });
+
     if (filename.endswith(".c")) {
-        addSourceFile(report, compiler, context);
+        addSourceFile(finder, handler);
+        checkMacrosInSourceFile(report, compiler);
     } else if (filename.endswith(".h")) {
-        addHeaderFile(report, compiler, context);
+        addHeaderFile(finder, handler);
     }
+    finder.matchAST(context);
 }
