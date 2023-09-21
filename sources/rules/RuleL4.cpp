@@ -61,6 +61,41 @@ void coconut::RuleL4::runCheck(ReportHandler &report,
             report.reportViolation(*this, compiler, body->getEndLoc());
     });
 
+    LambdaCallback cmpdStmt([&] (MatchFinder::MatchResult const &result) {
+        auto stmt = result.Nodes.getNodeAs<clang::Stmt>("stmt");
+
+        if (!stmt)
+            return;
+
+        if (auto ifStmt = llvm::dyn_cast<clang::IfStmt>(stmt)) {
+            if (not llvm::dyn_cast<clang::CompoundStmt>(ifStmt->getThen()))
+                return;
+
+            auto &sm = compiler.getSourceManager();
+            clang::SourceLocation const &ifLoc = ifStmt->getBeginLoc();
+            clang::SourceLocation const &ifBodyLoc = ifStmt->getThen()->getBeginLoc();
+
+
+            if (sm.getExpansionLineNumber(ifLoc) != sm.getExpansionLineNumber(ifBodyLoc)) {
+                report.reportViolation(*this, compiler, ifLoc);
+                return;
+            }
+
+            char const charAfterBracket = sm.getCharacterData(ifBodyLoc)[1];
+            if (charAfterBracket != '\n')
+                report.reportViolation(*this, compiler, ifLoc);
+
+        } else if (auto forStmt = llvm::dyn_cast<clang::ForStmt>(stmt)) {
+            // not dev yet
+        } else if (auto whileStmt = llvm::dyn_cast<clang::WhileStmt>(stmt)) {
+            // not dev yet
+        } else if (auto doStmt = llvm::dyn_cast<clang::DoStmt>(stmt)) {
+            // not dev yet
+        } else if (auto switchStmt = llvm::dyn_cast<clang::SwitchStmt>(stmt)) {
+            // not dev yet
+        }
+    });
+
     finder.addMatcher(
         functionDecl(
             isExpansionInMainFile(),
@@ -68,6 +103,18 @@ void coconut::RuleL4::runCheck(ReportHandler &report,
         )
             .bind("function"),
         &functions
+    );
+
+    auto controlFlow =
+        anyOf(ifStmt(), forStmt(), whileStmt(), switchStmt(), doStmt());
+
+    finder.addMatcher(
+        stmt(
+            isExpansionInMainFile(),
+            controlFlow
+        )
+            .bind("stmt"),
+        &cmpdStmt
     );
 
     finder.matchAST(context);

@@ -8,7 +8,7 @@ COPY sources /app/sources
 COPY include /app/include
 
 RUN cmake -B build
-RUN cmake --build build -j
+RUN cmake --build build -j6
 
 RUN install ./build/coconut /usr/bin
 
