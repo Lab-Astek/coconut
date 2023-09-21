@@ -1,3 +1,7 @@
-l4_if_else.c:12: MINOR:C-L4
-l4_if_else.c:16: MAJOR:C-L1
-l4_if_else.c:16: MINOR:C-L4
+l4_if_else.c:14: MINOR:C-L4
+l4_if_else.c:26: MINOR:C-L4
+l4_if_else.c:30: MINOR:C-L4
+l4_if_else.c:31: MAJOR:C-L1
+l4_if_else.c:31: MINOR:C-L4
+l4_if_else.c:31: MINOR:C-L4
+l4_if_else.c:34: MINOR:C-L4

@@ -14,6 +14,7 @@
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/PreprocessingRecord.h>
+#include <llvm/ADT/StringRef.h>
 
 #include <iostream>
 
@@ -22,6 +23,37 @@ using namespace clang::ast_matchers;
 coconut::RuleL4::RuleL4()
     : Rule("MINOR:C-L4", "misplaced brackets")
 {
+}
+
+static bool bracketOnGoodPosition(
+    clang::SourceLocation const &stmtLoc,
+    clang::CompoundStmt const *cmpdStmt,
+    clang::SourceManager &sm
+)
+{
+    clang::SourceLocation const &BodyLoc = cmpdStmt->getBeginLoc();
+
+
+    if (sm.getExpansionLineNumber(stmtLoc) != sm.getExpansionLineNumber(BodyLoc))
+        return false;
+
+    char const charAfterBracket = sm.getCharacterData(BodyLoc)[1];
+    if (charAfterBracket != '\n')
+        return false;
+
+    return true;
+}
+
+static bool isAloneOnHisLine(clang::SourceLocation const &loc, clang::SourceManager &sm)
+{
+    clang::SourceLocation beginLoc = sm.translateLineCol(sm.getMainFileID(),sm.getSpellingLineNumber(loc),1);
+    char const *charPtr = sm.getCharacterData(beginLoc);
+    llvm::StringRef line(charPtr);
+
+    line = line.take_front(line.find('\n'));
+    if (line.find_first_not_of(" }\n") != llvm::StringRef::npos)
+        return false;
+    return true;
 }
 
 void coconut::RuleL4::runCheck(ReportHandler &report,
@@ -67,23 +99,29 @@ void coconut::RuleL4::runCheck(ReportHandler &report,
         if (!stmt)
             return;
 
+        auto &sm = compiler.getSourceManager();
         if (auto ifStmt = llvm::dyn_cast<clang::IfStmt>(stmt)) {
-            if (not llvm::dyn_cast<clang::CompoundStmt>(ifStmt->getThen()))
-                return;
+            auto const *cmpdStmt = llvm::dyn_cast<clang::CompoundStmt>(ifStmt->getThen());
 
-            auto &sm = compiler.getSourceManager();
-            clang::SourceLocation const &ifLoc = ifStmt->getBeginLoc();
-            clang::SourceLocation const &ifBodyLoc = ifStmt->getThen()->getBeginLoc();
-
-
-            if (sm.getExpansionLineNumber(ifLoc) != sm.getExpansionLineNumber(ifBodyLoc)) {
-                report.reportViolation(*this, compiler, ifLoc);
-                return;
+            if (cmpdStmt) {
+                if (not bracketOnGoodPosition(ifStmt->getBeginLoc(), cmpdStmt, sm))
+                    report.reportViolation(*this, compiler, ifStmt->getBeginLoc());
+                if (not ifStmt->hasElseStorage() and
+                    not isAloneOnHisLine(ifStmt->getEndLoc(), sm))
+                    report.reportViolation(*this, compiler, ifStmt->getEndLoc());
             }
 
-            char const charAfterBracket = sm.getCharacterData(ifBodyLoc)[1];
-            if (charAfterBracket != '\n')
-                report.reportViolation(*this, compiler, ifLoc);
+            if (ifStmt->hasElseStorage()) {
+                auto const *elseStmt = llvm::dyn_cast<clang::CompoundStmt>(ifStmt->getElse());
+
+                if (not elseStmt)
+                    return;
+
+                if (not bracketOnGoodPosition(ifStmt->getElseLoc(), elseStmt, sm))
+                    report.reportViolation(*this, compiler, ifStmt->getElseLoc());
+                if (not isAloneOnHisLine(ifStmt->getElse()->getEndLoc(), sm))
+                    report.reportViolation(*this, compiler, ifStmt->getElse()->getEndLoc());
+            }
 
         } else if (auto forStmt = llvm::dyn_cast<clang::ForStmt>(stmt)) {
             // not dev yet
