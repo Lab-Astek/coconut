@@ -1,19 +1,25 @@
 /*
 ** EPITECH PROJECT, 2023
-** o3
+** l4
 ** File description:
-** o3
+** l4
 */
 
-int func(int a)
+void test(void)
 {
-    return a + 1;
- }
+    while (1) {
+        return;
+    }
+}
 
 int main(void)
- {
-    int i = 0;
+{
+    int count = 0;
 
-    i = func(i);
-    return i;
+    for (int i = 0; i != 10; ++i)
+    {
+        count++;
+    }
+    test();
+    return count;
 }

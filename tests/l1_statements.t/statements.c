@@ -73,7 +73,8 @@ void test_do_while(void)
         printf("Enter a character: ");
         j = getchar();
     } while (j > 32);
-    do { printf("Enter a character: ");
+    do {
+        printf("Enter a character: ");
         j = getchar();
     } while (j > 32);
     do {

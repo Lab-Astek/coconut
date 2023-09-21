@@ -96,7 +96,7 @@ void coconut::RuleL4::runCheck(ReportHandler &report,
     LambdaCallback cmpdStmt([&] (MatchFinder::MatchResult const &result) {
         auto stmt = result.Nodes.getNodeAs<clang::Stmt>("stmt");
 
-        if (!stmt)
+        if (!stmt or stmt->getBeginLoc().isMacroID())
             return;
 
         auto &sm = compiler.getSourceManager();
@@ -124,13 +124,39 @@ void coconut::RuleL4::runCheck(ReportHandler &report,
             }
 
         } else if (auto forStmt = llvm::dyn_cast<clang::ForStmt>(stmt)) {
-            // not dev yet
+            auto const *cmpdStmt = llvm::dyn_cast<clang::CompoundStmt>(forStmt->getBody());
+
+            if (cmpdStmt) {
+                if (not bracketOnGoodPosition(forStmt->getBeginLoc(), cmpdStmt, sm))
+                    report.reportViolation(*this, compiler, forStmt->getBeginLoc());
+                if (not isAloneOnHisLine(forStmt->getEndLoc(), sm))
+                    report.reportViolation(*this, compiler, forStmt->getEndLoc());
+            }
         } else if (auto whileStmt = llvm::dyn_cast<clang::WhileStmt>(stmt)) {
-            // not dev yet
+            auto const *cmpdStmt = llvm::dyn_cast<clang::CompoundStmt>(whileStmt->getBody());
+
+            if (cmpdStmt) {
+                if (not bracketOnGoodPosition(whileStmt->getBeginLoc(), cmpdStmt, sm))
+                    report.reportViolation(*this, compiler, whileStmt->getBeginLoc());
+                if (not isAloneOnHisLine(whileStmt->getEndLoc(), sm))
+                    report.reportViolation(*this, compiler, whileStmt->getEndLoc());
+            }
         } else if (auto doStmt = llvm::dyn_cast<clang::DoStmt>(stmt)) {
-            // not dev yet
+            auto const *cmpdStmt = llvm::dyn_cast<clang::CompoundStmt>(doStmt->getBody());
+
+            if (cmpdStmt) {
+                if (not bracketOnGoodPosition(doStmt->getBeginLoc(), cmpdStmt, sm))
+                    report.reportViolation(*this, compiler, doStmt->getBeginLoc());
+            }
         } else if (auto switchStmt = llvm::dyn_cast<clang::SwitchStmt>(stmt)) {
-            // not dev yet
+            auto const *cmpdStmt = llvm::dyn_cast<clang::CompoundStmt>(switchStmt->getBody());
+
+            if (cmpdStmt) {
+                if (not bracketOnGoodPosition(switchStmt->getBeginLoc(), cmpdStmt, sm))
+                    report.reportViolation(*this, compiler, switchStmt->getBeginLoc());
+                if (not isAloneOnHisLine(switchStmt->getEndLoc(), sm))
+                    report.reportViolation(*this, compiler, switchStmt->getEndLoc());
+            }
         }
     });
 
