@@ -78,7 +78,7 @@ If you want to contribute to this repository, please read the guidelines from th
 | C-C1            | ✅                                                       |
 | C-C2            | ✅                                                       |
 | C-C3            | ✅                                                       |
-| C-H1            | ❌ Planned                                               |
+| C-H1            | ✅                                                       |
 | C-H2            | ❌ Planned                                               |
 | C-H3            | ✅                                                       |
 | C-A1            | ❌ Must be checked by humans                             |
