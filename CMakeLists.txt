@@ -30,6 +30,7 @@ set(SOURCES
     sources/rules/RuleG2.cpp
     sources/rules/RuleG4.cpp
     sources/rules/RuleG5.cpp
+    sources/rules/RuleG10.cpp
 
     sources/rules/RuleF2.cpp
     sources/rules/RuleF4.cpp
