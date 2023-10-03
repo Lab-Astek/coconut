@@ -57,6 +57,7 @@ If you want to contribute to this repository, please read the guidelines from th
 | C-G7            | 🍌                                                       |
 | C-G8            | 🍌                                                       |
 | C-G9            | ❌ Planned                                               |
+| C-G10           | ✅                                                       |
 | C-F1            | ❌ Must be checked by humans                             |
 | C-F2            | ✅ Checks snake case, not for English or verbs           |
 | C-F3            | 🍌                                                       |
