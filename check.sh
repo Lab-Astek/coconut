@@ -62,7 +62,7 @@ rm -f compile_flags.txt
 if [ -d rush-1-1 ]; then
     # Rush1 is a special case
     bear -- gcc rush-1-*/*.c >/dev/null 2>&1
-elif [ -f Makefile || -f makefile || -f GNUmakefile ]; then
+elif [[ -f Makefile || -f makefile || -f GNUmakefile ]]; then
     # Normal case, with a Makefile at the root
     bear -- make re >/dev/null 2>&1
 else
