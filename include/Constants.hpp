@@ -16,7 +16,8 @@ constexpr unsigned int LINE_LIMIT = 20;
 
 constexpr unsigned int PARAMS_LIMIT = 4;
 
-constexpr unsigned int FUNCTION_LIMIT = 5;
+constexpr unsigned int EXTERN_FUNCTION_LIMIT = 5;
+constexpr unsigned int FUNCTION_LIMIT = 10;
 
 constexpr char const *SNAKECASE_REGEX = "[a-z0-9]+(?:_[a-z0-9]+)*";
 

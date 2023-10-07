@@ -17,7 +17,7 @@
 using namespace clang::ast_matchers;
 
 coconut::RuleO3::RuleO3()
-    : Rule("MAJOR:C-O3", "too many function declaration")
+    : Rule("MAJOR:C-O3", "too many function definitions")
 {
 }
 
@@ -27,6 +27,7 @@ void coconut::RuleO3::runCheck(
 ) const
 {
     std::size_t func_nbr = 0;
+    std::size_t extern_func_nbr = 0;
 
     MatchFinder finder;
     LambdaCallback handler([&](MatchFinder::MatchResult const &result) {
@@ -34,6 +35,14 @@ void coconut::RuleO3::runCheck(
         if (!func)
             return;
         func_nbr++;
+        if (!func->isStatic()) {
+            extern_func_nbr++;
+            // Report each extern function over the limit
+            if (extern_func_nbr > coconut::EXTERN_FUNCTION_LIMIT) {
+                report.reportViolation(*this, compiler, func->getLocation());
+                return;
+            }
+        }
         // Report each function over the limit
         if (func_nbr > coconut::FUNCTION_LIMIT)
             report.reportViolation(*this, compiler, func->getLocation());
