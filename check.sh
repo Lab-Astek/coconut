@@ -59,15 +59,18 @@ cd - >/dev/null
 rm -f compile_commands.json
 rm -f compile_flags.txt
 
-# If Makefile exists
-if [ -f Makefile || -f makefile || -f GNUmakefile ]; then
+if [ -d rush-1-1 ]; then
+    # Rush1 is a special case
+    bear -- gcc rush-1-*/*.c >/dev/null 2>&1
+elif [ -f Makefile || -f makefile || -f GNUmakefile ]; then
+    # Normal case, with a Makefile at the root
     bear -- make re >/dev/null 2>&1
 else
-    # Start of C pool
+    # Most days of the CPool
     if [ -d lib/my ]; then
-        bear -- lib/my/build.sh >/dev/null 2>&1
+        (cd lib/my && bear -- ./build.sh) >/dev/null 2>&1
     fi
-    bear -- gcc *.c -Iinclude >/dev/null 2>&1
+    bear -- gcc *.c -I./include >/dev/null 2>&1
 fi
 
 # Back to root directory
