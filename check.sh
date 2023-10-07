@@ -51,7 +51,11 @@ find "$COPY_DEST" \
 
 cd - >/dev/null
 
-bear -- make re >/dev/null 2>&1
+if [ -d rush-1-1 ]; then
+    bear -- gcc rush-1-*/*.c >/dev/null 2>&1
+else
+    bear -- make re >/dev/null 2>&1
+fi
 
 cd - >/dev/null
 
