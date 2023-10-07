@@ -46,7 +46,7 @@ If you want to contribute to this repository, please read the guidelines from th
 |-----------------|----------------------------------------------------------|
 | C-O1            | 🍌                                                       |
 | C-O2            | ❌ Must be checked by humans                             |
-| C-O3            | ✅ Checks for five functions per file, not for coherence |
+| C-O3            | ✅ Check 10 functions (5 extern) per file, not coherence |
 | C-O4            | ✅ Check snake_case naming, not coherence (file)         |
 | C-G1            | 🍌                                                       |
 | C-G2            | ✅                                                       |
